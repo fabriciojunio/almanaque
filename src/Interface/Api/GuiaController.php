@@ -21,7 +21,7 @@ use Symfony\Component\Routing\Attribute\Route;
  * É pública porque o guia é público, e é limitada por chamadas por minuto
  * porque busca custa e raspagem é o uso previsível de um diretório aberto.
  */
-#[Route('/api/g/{portal}', requirements: ['portal' => '[a-z0-9\-]{2,60}'])]
+#[Route('/rest/g/{portal}', requirements: ['portal' => '[a-z0-9\-]{2,60}'])]
 final class GuiaController extends AbstractController
 {
     public function __construct(

@@ -74,4 +74,4 @@ docker compose stop indice
 ```
 
 O guia continua respondendo, agora pelo banco, com um aviso na página. A sonda
-em `/api/saude` mostra `busca: false` com `banco: true`.
+em `/rest/saude` mostra `busca: false` com `banco: true`.

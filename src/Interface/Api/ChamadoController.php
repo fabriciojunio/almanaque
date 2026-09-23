@@ -28,7 +28,7 @@ use Symfony\Component\Routing\Attribute\Route;
  * fila inteira, triagem e anotação interna. A separação não é de tela: é do
  * votante, e cada regra tem teste.
  */
-#[Route('/api/chamados')]
+#[Route('/rest/chamados')]
 final class ChamadoController extends AbstractController
 {
     public function __construct(

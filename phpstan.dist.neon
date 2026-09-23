@@ -17,7 +17,7 @@ parameters:
         - src/Kernel.php
 
     symfony:
-        containerXmlPath: var/cache/test/App_KernelTestDebugContainer.xml
+        containerXmlPath: var/cache/test/construcao/App_KernelTestDebugContainer.xml
 
     # Com o EntityManager na mão, o PHPStan confere DQL e tipo de repositório,
     # em vez de aceitar qualquer string como consulta válida.

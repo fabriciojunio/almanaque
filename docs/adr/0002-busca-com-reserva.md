@@ -19,7 +19,7 @@ marcado com `comReserva`.
 as letras, e o rodapé do resultado diz qual motor respondeu.
 
 O suporte ganha a informação mais útil possível: ao abrir o chamado "a busca
-piorou", `/api/saude` já responde se o índice estava fora.
+piorou", `/rest/saude` já responde se o índice estava fora.
 
 O que se perde é a chance de perceber a queda pelo sintoma: o guia continua
 funcionando, e sem o alerta no log ninguém olharia. Por isso o alerta é em

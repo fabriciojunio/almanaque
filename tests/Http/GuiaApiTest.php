@@ -12,7 +12,7 @@ class GuiaApiTest extends CasoDeTesteHttp
     #[Test]
     public function a_sonda_de_saude_responde_sem_autenticacao(): void
     {
-        $this->chamar('GET', '/api/saude');
+        $this->chamar('GET', '/rest/saude');
 
         self::assertResponseIsSuccessful();
         $corpo = $this->json();
@@ -23,7 +23,7 @@ class GuiaApiTest extends CasoDeTesteHttp
     #[Test]
     public function a_sonda_nao_conta_detalhe_de_infraestrutura(): void
     {
-        $this->chamar('GET', '/api/saude');
+        $this->chamar('GET', '/rest/saude');
 
         self::assertSame(
             ['status', 'versao', 'dependencias'],
@@ -34,7 +34,7 @@ class GuiaApiTest extends CasoDeTesteHttp
     #[Test]
     public function toda_resposta_leva_o_identificador_de_requisicao(): void
     {
-        $this->chamar('GET', '/api/saude');
+        $this->chamar('GET', '/rest/saude');
 
         $identificador = $this->navegador->getResponse()->headers->get('X-Request-Id');
         self::assertNotEmpty($identificador);
@@ -44,7 +44,7 @@ class GuiaApiTest extends CasoDeTesteHttp
     #[Test]
     public function o_identificador_que_o_cliente_manda_e_preservado(): void
     {
-        $this->navegador->request('GET', '/api/saude', server: ['HTTP_X_REQUEST_ID' => 'chamado-48210']);
+        $this->navegador->request('GET', '/rest/saude', server: ['HTTP_X_REQUEST_ID' => 'chamado-48210']);
 
         self::assertSame('chamado-48210', $this->navegador->getResponse()->headers->get('X-Request-Id'));
     }
@@ -52,7 +52,7 @@ class GuiaApiTest extends CasoDeTesteHttp
     #[Test]
     public function identificador_com_formato_estranho_e_trocado(): void
     {
-        $this->navegador->request('GET', '/api/saude', server: [
+        $this->navegador->request('GET', '/rest/saude', server: [
             'HTTP_X_REQUEST_ID' => '<script>alert(1)</script>',
         ]);
 
@@ -63,7 +63,7 @@ class GuiaApiTest extends CasoDeTesteHttp
     #[Test]
     public function toda_resposta_leva_os_cabecalhos_de_seguranca(): void
     {
-        $this->chamar('GET', '/api/saude');
+        $this->chamar('GET', '/rest/saude');
 
         self::assertResponseHeaderSame('X-Content-Type-Options', 'nosniff');
         self::assertResponseHeaderSame('X-Frame-Options', 'DENY');
@@ -76,7 +76,7 @@ class GuiaApiTest extends CasoDeTesteHttp
     #[Test]
     public function o_guia_publico_lista_anuncios_sem_token(): void
     {
-        $this->chamar('GET', '/api/g/bauru/anuncios');
+        $this->chamar('GET', '/rest/g/bauru/anuncios');
 
         self::assertResponseIsSuccessful();
         $corpo = $this->json();
@@ -88,7 +88,7 @@ class GuiaApiTest extends CasoDeTesteHttp
     #[Test]
     public function guia_que_nao_existe_responde_404(): void
     {
-        $this->chamar('GET', '/api/g/inexistente/anuncios');
+        $this->chamar('GET', '/rest/g/inexistente/anuncios');
 
         self::assertResponseStatusCodeSame(404);
     }
@@ -96,7 +96,7 @@ class GuiaApiTest extends CasoDeTesteHttp
     #[Test]
     public function a_busca_por_termo_filtra(): void
     {
-        $this->chamar('GET', '/api/g/bauru/anuncios?q=padaria');
+        $this->chamar('GET', '/rest/g/bauru/anuncios?q=padaria');
 
         $corpo = $this->json();
         self::assertNotEmpty($corpo['dados']);
@@ -106,7 +106,7 @@ class GuiaApiTest extends CasoDeTesteHttp
     #[Test]
     public function a_busca_aceita_filtro_por_categoria(): void
     {
-        $this->chamar('GET', '/api/g/bauru/anuncios?categoria=automotivo');
+        $this->chamar('GET', '/rest/g/bauru/anuncios?categoria=automotivo');
 
         $corpo = $this->json();
         self::assertCount(2, $corpo['dados']);
@@ -118,20 +118,20 @@ class GuiaApiTest extends CasoDeTesteHttp
     #[Test]
     public function um_guia_nao_enxerga_o_anuncio_do_outro(): void
     {
-        $this->chamar('GET', '/api/g/bauru/anuncios?q=Padaria Estrela');
+        $this->chamar('GET', '/rest/g/bauru/anuncios?q=Padaria Estrela');
         $doBauru = $this->json()['dados'];
         self::assertCount(1, $doBauru);
 
         // O mesmo título existe nos dois portais dos dados de exemplo. Se o
         // filtro de inquilino vazar, este total muda.
-        $this->chamar('GET', '/api/g/vale/anuncios?q=Padaria Estrela');
+        $this->chamar('GET', '/rest/g/vale/anuncios?q=Padaria Estrela');
         self::assertCount(1, $this->json()['dados']);
     }
 
     #[Test]
     public function o_detalhe_do_anuncio_traz_contato_e_local(): void
     {
-        $this->chamar('GET', '/api/g/bauru/anuncios/padaria-estrela');
+        $this->chamar('GET', '/rest/g/bauru/anuncios/padaria-estrela');
 
         self::assertResponseIsSuccessful();
         $corpo = $this->json();
@@ -143,10 +143,10 @@ class GuiaApiTest extends CasoDeTesteHttp
     #[Test]
     public function anuncio_de_um_portal_nao_abre_pela_url_do_outro(): void
     {
-        $this->chamar('GET', '/api/g/bauru/anuncios/padaria-estrela');
+        $this->chamar('GET', '/rest/g/bauru/anuncios/padaria-estrela');
         self::assertResponseIsSuccessful();
 
-        $this->chamar('GET', '/api/g/vale/anuncios/padaria-estrela');
+        $this->chamar('GET', '/rest/g/vale/anuncios/padaria-estrela');
         self::assertResponseIsSuccessful();
 
         // O mesmo apelido existe nos dois, e cada um devolve o seu: a chave
@@ -157,7 +157,7 @@ class GuiaApiTest extends CasoDeTesteHttp
     #[Test]
     public function as_categorias_vem_em_arvore_com_a_contagem(): void
     {
-        $this->chamar('GET', '/api/g/bauru/categorias');
+        $this->chamar('GET', '/rest/g/bauru/categorias');
 
         $dados = $this->json()['dados'];
         self::assertCount(4, $dados);
@@ -174,7 +174,7 @@ class GuiaApiTest extends CasoDeTesteHttp
     #[Test]
     public function pagina_alem_do_fim_devolve_lista_vazia_e_nao_erro(): void
     {
-        $this->chamar('GET', '/api/g/bauru/anuncios?pagina=99');
+        $this->chamar('GET', '/rest/g/bauru/anuncios?pagina=99');
 
         self::assertResponseIsSuccessful();
         self::assertSame([], $this->json()['dados']);
@@ -183,16 +183,28 @@ class GuiaApiTest extends CasoDeTesteHttp
     #[Test]
     public function tamanho_de_pagina_absurdo_e_cortado_no_teto(): void
     {
-        $this->chamar('GET', '/api/g/bauru/anuncios?por_pagina=5000');
+        $this->chamar('GET', '/rest/g/bauru/anuncios?por_pagina=5000');
 
         self::assertResponseIsSuccessful();
         self::assertSame(50, $this->json()['por_pagina']);
     }
 
     #[Test]
+    public function a_busca_ignora_maiuscula(): void
+    {
+        // No MySQL e no SQLite o LIKE já ignora, por causa da colação padrão.
+        // No PostgreSQL não, e foi lá que isto apareceu.
+        foreach (['padaria', 'PADARIA', 'Padaria', 'pAdArIa'] as $termo) {
+            $this->chamar('GET', '/rest/g/bauru/anuncios?q='.$termo);
+
+            self::assertCount(1, $this->json()['dados'], "não achou com o termo {$termo}");
+        }
+    }
+
+    #[Test]
     public function termo_com_curinga_de_like_nao_vira_busca_por_tudo(): void
     {
-        $this->chamar('GET', '/api/g/bauru/anuncios?q=%');
+        $this->chamar('GET', '/rest/g/bauru/anuncios?q=%');
 
         self::assertResponseIsSuccessful();
         self::assertSame([], $this->json()['dados'], 'o curinga é escapado, então não casa com nada');

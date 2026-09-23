@@ -40,6 +40,13 @@ services:
     # domínio não fica sabendo.
     App\Dominio\Assinatura\Gateway: '@App\Infraestrutura\Pagamento\GatewayDeDemonstracao'
 
+    # A sessão do console vai para o banco em produção. Ver framework.yaml e
+    # FabricaDeSessaoNoBanco.
+    Symfony\Component\HttpFoundation\Session\Storage\Handler\PdoSessionHandler:
+        factory: ['App\Infraestrutura\Sessao\FabricaDeSessaoNoBanco', 'criar']
+        arguments:
+            $conexao: '@doctrine.dbal.default_connection'
+
     # Precisa vir antes do resolvedor do Doctrine, que tentaria achar o portal
     # pelo identificador e devolveria 404 antes de a rota chegar ao controller.
     App\Infraestrutura\Http\ResolvedorDePortal:

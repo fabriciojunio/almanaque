@@ -18,7 +18,7 @@ class SegurancaApiTest extends CasoDeTesteHttp
     #[Test]
     public function sem_token_a_area_autenticada_responde_401(): void
     {
-        $this->chamar('GET', '/api/chamados');
+        $this->chamar('GET', '/rest/chamados');
 
         self::assertResponseStatusCodeSame(401);
     }
@@ -26,7 +26,7 @@ class SegurancaApiTest extends CasoDeTesteHttp
     #[Test]
     public function token_inventado_nao_entra(): void
     {
-        $this->chamar('GET', '/api/chamados', token: str_repeat('a', 64));
+        $this->chamar('GET', '/rest/chamados', token: str_repeat('a', 64));
 
         self::assertResponseStatusCodeSame(401);
     }
@@ -43,7 +43,7 @@ class SegurancaApiTest extends CasoDeTesteHttp
         $this->gerenciador()->persist($token);
         $this->gerenciador()->flush();
 
-        $this->chamar('GET', '/api/chamados', token: $segredo);
+        $this->chamar('GET', '/rest/chamados', token: $segredo);
 
         self::assertResponseStatusCodeSame(401);
     }
@@ -60,7 +60,7 @@ class SegurancaApiTest extends CasoDeTesteHttp
         $usuario->desativar();
         $this->gerenciador()->flush();
 
-        $this->chamar('GET', '/api/chamados', token: $segredo);
+        $this->chamar('GET', '/rest/chamados', token: $segredo);
 
         self::assertResponseStatusCodeSame(401);
     }
@@ -81,14 +81,14 @@ class SegurancaApiTest extends CasoDeTesteHttp
     #[Test]
     public function login_devolve_o_mesmo_erro_para_email_inexistente_e_senha_errada(): void
     {
-        $this->chamar('POST', '/api/tokens', corpo: [
+        $this->chamar('POST', '/rest/tokens', corpo: [
             'email' => 'ninguem@exemplo.com.br',
             'senha' => 'seja-la-qual-for',
         ]);
         $paraQuemNaoExiste = $this->json();
         self::assertResponseStatusCodeSame(401);
 
-        $this->chamar('POST', '/api/tokens', corpo: [
+        $this->chamar('POST', '/rest/tokens', corpo: [
             'email' => 'suporte@almanaque.com.br',
             'senha' => 'senha-errada',
         ]);
@@ -102,7 +102,7 @@ class SegurancaApiTest extends CasoDeTesteHttp
     #[Test]
     public function login_correto_devolve_token_que_funciona(): void
     {
-        $this->chamar('POST', '/api/tokens', corpo: [
+        $this->chamar('POST', '/rest/tokens', corpo: [
             'email' => 'suporte@almanaque.com.br',
             'senha' => 'demonstracao2026',
         ]);
@@ -112,7 +112,7 @@ class SegurancaApiTest extends CasoDeTesteHttp
         self::assertNotEmpty($corpo['token']);
         self::assertSame('ROLE_SUPORTE', $corpo['usuario']['papel']);
 
-        $this->chamar('GET', '/api/chamados', token: $corpo['token']);
+        $this->chamar('GET', '/rest/chamados', token: $corpo['token']);
         self::assertResponseIsSuccessful();
     }
 
@@ -125,14 +125,14 @@ class SegurancaApiTest extends CasoDeTesteHttp
         $this->navegador->disableReboot();
 
         for ($tentativa = 1; $tentativa <= 5; ++$tentativa) {
-            $this->chamar('POST', '/api/tokens', corpo: [
+            $this->chamar('POST', '/rest/tokens', corpo: [
                 'email' => 'suporte@almanaque.com.br',
                 'senha' => 'senha-errada-'.$tentativa,
             ]);
             self::assertResponseStatusCodeSame(401);
         }
 
-        $this->chamar('POST', '/api/tokens', corpo: [
+        $this->chamar('POST', '/rest/tokens', corpo: [
             'email' => 'suporte@almanaque.com.br',
             'senha' => 'demonstracao2026',
         ]);
@@ -145,7 +145,7 @@ class SegurancaApiTest extends CasoDeTesteHttp
     {
         $token = $this->tokenDe('dono@guiadebauru.com.br');
 
-        $this->chamar('GET', '/api/chamados', token: $token);
+        $this->chamar('GET', '/rest/chamados', token: $token);
         $doBauru = $this->json()['dados'];
 
         foreach ($doBauru as $chamado) {
@@ -157,7 +157,7 @@ class SegurancaApiTest extends CasoDeTesteHttp
             static fn (array $c) => 'vale' === $c['portal'],
         ))[0];
 
-        $this->chamar('GET', '/api/chamados/'.$chamadoDoVale['id'], token: $token);
+        $this->chamar('GET', '/rest/chamados/'.$chamadoDoVale['id'], token: $token);
         self::assertResponseStatusCodeSame(403);
     }
 
@@ -169,7 +169,7 @@ class SegurancaApiTest extends CasoDeTesteHttp
             static fn (array $c) => 'vale' === $c['portal'],
         ))[0];
 
-        $this->chamar('GET', '/api/chamados/'.$chamadoDoVale['id'], token: $this->tokenDe('dono@valenegocios.com.br'));
+        $this->chamar('GET', '/rest/chamados/'.$chamadoDoVale['id'], token: $this->tokenDe('dono@valenegocios.com.br'));
         self::assertResponseIsSuccessful();
 
         $anotacoes = $this->json()['anotacoes'];
@@ -187,7 +187,7 @@ class SegurancaApiTest extends CasoDeTesteHttp
             static fn (array $c) => 'vale' === $c['portal'],
         ))[0];
 
-        $this->chamar('GET', '/api/chamados/'.$chamadoDoVale['id'], token: $this->tokenDe('suporte@almanaque.com.br'));
+        $this->chamar('GET', '/rest/chamados/'.$chamadoDoVale['id'], token: $this->tokenDe('suporte@almanaque.com.br'));
 
         $internas = array_filter($this->json()['anotacoes'], static fn (array $a) => $a['interna']);
         self::assertNotEmpty($internas);
@@ -200,7 +200,7 @@ class SegurancaApiTest extends CasoDeTesteHttp
 
         $this->chamar(
             'POST',
-            '/api/chamados/'.$chamado['id'].'/triagem',
+            '/rest/chamados/'.$chamado['id'].'/triagem',
             token: $this->tokenDe('dono@guiadebauru.com.br'),
             corpo: ['classificacao' => 'duvida_de_uso'],
         );
@@ -211,7 +211,7 @@ class SegurancaApiTest extends CasoDeTesteHttp
     #[Test]
     public function a_area_publica_do_guia_continua_aberta(): void
     {
-        $this->chamar('GET', '/api/g/bauru/anuncios');
+        $this->chamar('GET', '/rest/g/bauru/anuncios');
 
         self::assertResponseIsSuccessful();
     }
@@ -219,7 +219,7 @@ class SegurancaApiTest extends CasoDeTesteHttp
     /** @return list<array<string, mixed>> */
     private function chamadosDoSuporte(): array
     {
-        $this->chamar('GET', '/api/chamados', token: $this->tokenDe('suporte@almanaque.com.br'));
+        $this->chamar('GET', '/rest/chamados', token: $this->tokenDe('suporte@almanaque.com.br'));
 
         return $this->json()['dados'];
     }

@@ -20,7 +20,7 @@ security:
         # A API é sem estado: o token vai no cabeçalho, e nada é guardado em
         # sessão. É o que permite mais de uma réplica atrás do balanceador.
         api:
-            pattern: ^/api
+            pattern: ^/rest
             stateless: true
             access_token:
                 token_handler: App\Infraestrutura\Seguranca\AutenticadorDeToken
@@ -42,10 +42,10 @@ security:
 
     access_control:
         # A ordem importa: a primeira regra que casa é a que vale.
-        - { path: ^/api/saude, roles: PUBLIC_ACCESS }
-        - { path: ^/api/tokens, roles: PUBLIC_ACCESS }
-        - { path: ^/api/g/, roles: PUBLIC_ACCESS }
-        - { path: ^/api/, roles: IS_AUTHENTICATED_FULLY }
+        - { path: ^/rest/saude, roles: PUBLIC_ACCESS }
+        - { path: ^/rest/tokens, roles: PUBLIC_ACCESS }
+        - { path: ^/rest/g/, roles: PUBLIC_ACCESS }
+        - { path: ^/rest/, roles: IS_AUTHENTICATED_FULLY }
         - { path: ^/suporte, roles: ROLE_SUPORTE }
         - { path: ^/entrar, roles: PUBLIC_ACCESS }
         - { path: ^/, roles: PUBLIC_ACCESS }

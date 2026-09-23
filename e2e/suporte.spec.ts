@@ -46,13 +46,13 @@ test('o analista assume, anota, classifica e resolve', async ({ page, request })
   // de exemplo deixaria a segunda rodada falhando por causa da primeira.
   const titulo = `Anúncio sumiu da busca ${Date.now()}`
 
-  const autenticacao = await request.post('/api/tokens', {
+  const autenticacao = await request.post('/rest/tokens', {
     data: { email: 'dono@guiadebauru.com.br', senha: 'demonstracao2026' },
   })
   expect(autenticacao.ok()).toBeTruthy()
   const { token } = await autenticacao.json()
 
-  const abertura = await request.post('/api/chamados', {
+  const abertura = await request.post('/rest/chamados', {
     headers: { Authorization: `Bearer ${token}` },
     data: {
       titulo,

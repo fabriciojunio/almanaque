@@ -66,14 +66,16 @@ class ProblemaConhecidoRepositorio extends ServiceEntityRepository
             return [];
         }
 
+        // LOWER dos dois lados: LIKE ignora maiúscula no MySQL e no SQLite,
+        // e não ignora no PostgreSQL.
         foreach (array_values($palavras) as $posicao => $palavra) {
             $chave = 'palavra'.$posicao;
             $consulta
                 ->andWhere(sprintf(
-                    '(p.titulo LIKE :%1$s OR p.sintoma LIKE :%1$s OR p.causa LIKE :%1$s)',
+                    '(LOWER(p.titulo) LIKE :%1$s OR LOWER(p.sintoma) LIKE :%1$s OR LOWER(p.causa) LIKE :%1$s)',
                     $chave,
                 ))
-                ->setParameter($chave, '%'.addcslashes($palavra, '\\%_').'%');
+                ->setParameter($chave, '%'.mb_strtolower(addcslashes($palavra, '\\%_')).'%');
         }
 
         return $consulta->getQuery()->getResult();

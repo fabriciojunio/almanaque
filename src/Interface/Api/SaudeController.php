@@ -27,7 +27,7 @@ final class SaudeController extends AbstractController
     ) {
     }
 
-    #[Route('/api/saude', name: 'api_saude', methods: ['GET'])]
+    #[Route('/rest/saude', name: 'api_saude', methods: ['GET'])]
     public function __invoke(): JsonResponse
     {
         $banco = $this->respondeu(fn () => $this->conexao->executeQuery('SELECT 1')->fetchOne());

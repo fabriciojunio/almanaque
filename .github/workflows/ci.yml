@@ -40,6 +40,7 @@ jobs:
         env:
           PHP_CS_FIXER_IGNORE_ENV: 1
 
+      # O PHPStan lê o container compilado para conferir serviço e DQL.
       - name: Preparar o container para a análise
         run: php bin/console cache:warmup --env=test
 

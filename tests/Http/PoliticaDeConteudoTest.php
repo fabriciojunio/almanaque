@@ -83,6 +83,17 @@ class PoliticaDeConteudoTest extends CasoDeTesteHttp
         self::assertStringNotContainsString('unsafe-eval', $politica);
     }
 
+    #[Test]
+    public function a_resposta_nao_conta_qual_e_a_stack(): void
+    {
+        $this->navegador->request('GET', '/');
+
+        $resposta = $this->navegador->getResponse();
+
+        self::assertFalse($resposta->headers->has('X-Powered-By'));
+        self::assertFalse($resposta->headers->has('Server'));
+    }
+
     private function entrarComoSuporte(): void
     {
         $usuario = static::getContainer()->get(UsuarioRepositorio::class)

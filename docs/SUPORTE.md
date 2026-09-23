@@ -134,7 +134,7 @@ respondendo pelo banco, com relevância pior. Três coisas acontecem juntas:
 3. O rodapé do resultado diz qual motor respondeu.
 
 Então, se o cliente abrir chamado dizendo que "a busca piorou", a primeira
-coisa a olhar é `/api/saude`: `busca: false` explica tudo.
+coisa a olhar é `/rest/saude`: `busca: false` explica tudo.
 
 ## Publicação de versão
 

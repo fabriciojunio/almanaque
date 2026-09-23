@@ -55,9 +55,14 @@ class AnuncioRepositorio extends ServiceEntityRepository
             ->setFirstResult($deslocamento);
 
         if (null !== $termo && '' !== trim($termo)) {
+            // LOWER dos dois lados porque LIKE não quer dizer a mesma coisa em
+            // todo banco: no MySQL e no SQLite ele ignora maiúscula por causa
+            // da colação padrão, no PostgreSQL não. Sem isto, procurar por
+            // "padaria" não acha "Padaria Estrela" em produção, e acha no
+            // ambiente de quem programa.
             $consulta
-                ->andWhere('a.titulo LIKE :termo OR a.descricao LIKE :termo')
-                ->setParameter('termo', '%'.$this->escapar($termo).'%');
+                ->andWhere('LOWER(a.titulo) LIKE :termo OR LOWER(a.descricao) LIKE :termo')
+                ->setParameter('termo', '%'.mb_strtolower($this->escapar($termo)).'%');
         }
 
         if (null !== $categoria) {

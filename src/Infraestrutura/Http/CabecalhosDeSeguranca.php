@@ -44,5 +44,13 @@ final class CabecalhosDeSeguranca
         }
 
         $cabecalhos->remove('X-Powered-By');
+
+        // O X-Powered-By também é posto pelo próprio PHP quando expose_php
+        // está ligado, e aí ele não passa pelo objeto de resposta. Em imagem
+        // nossa o php.ini desliga; em plataforma de terceiro, não temos o
+        // php.ini, então sai daqui.
+        if (!headers_sent()) {
+            header_remove('X-Powered-By');
+        }
     }
 }

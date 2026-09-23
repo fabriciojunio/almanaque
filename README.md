@@ -57,7 +57,7 @@ docker compose exec api php bin/console almanaque:reindexar
 
 O guia abre em <http://localhost:8080>, o console de suporte em
 <http://localhost:8080/suporte> e a sonda em
-<http://localhost:8080/api/saude>.
+<http://localhost:8080/rest/saude>.
 
 Entrar com `suporte@almanaque.com.br` e a senha `demonstracao2026`. As outras
 contas de exemplo estão em [docs/DEMONSTRACAO.md](docs/DEMONSTRACAO.md).

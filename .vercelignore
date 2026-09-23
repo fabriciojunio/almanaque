@@ -1,0 +1,20 @@
+.git
+.github
+node_modules
+tests
+e2e
+docs
+k8s
+docker
+playwright-report
+test-results
+# O cache é gerado na construção lá, e não aqui: o container compilado guarda
+# o caminho do cache, e o caminho desta máquina não existe no servidor.
+var
+*.db
+
+# A plataforma serve public/ como raiz de arquivo estático, e um index.php
+# ali dentro vira download do código-fonte em vez de página. O ponto de
+# entrada da publicação é api/index.php; este é o do Nginx e do servidor
+# embutido, e não vai para lá.
+public/index.php

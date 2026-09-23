@@ -2,14 +2,45 @@
 framework:
     secret: '%env(APP_SECRET)%'
 
-    # Note that the session will be started ONLY if you read or write from it.
+    # A sessão só começa quando alguém lê ou escreve nela, então o visitante
+    # do guia não recebe cookie nenhum: quem usa sessão aqui é o console.
     session: true
-
-    #esi: true
-    #fragments: true
 
 when@test:
     framework:
         test: true
         session:
             storage_factory_id: session.storage.factory.mock_file
+
+when@prod:
+    framework:
+        # A aplicação fica atrás do proxy da plataforma, que termina o TLS e
+        # repassa em HTTP. Sem isto, todo redirecionamento sai como http://, o
+        # navegador não manda o cookie marcado como seguro e o analista volta
+        # para a tela de entrada logo depois de entrar.
+        #
+        # REMOTE_ADDR, e não uma faixa de endereços: quem conecta é sempre o
+        # proxy da plataforma, porque não existe outro caminho até aqui.
+        trusted_proxies: REMOTE_ADDR
+        trusted_headers:
+            - x-forwarded-for
+            - x-forwarded-host
+            - x-forwarded-proto
+            - x-forwarded-port
+
+        session:
+            # Em produção a aplicação roda sem disco de escrita e a instância
+            # morre a qualquer momento. Sessão em arquivo significaria o
+            # analista sendo deslogado quando cai em outra instância, então
+            # ela vai para o banco.
+            handler_id: Symfony\Component\HttpFoundation\Session\Storage\Handler\PdoSessionHandler
+            cookie_secure: true
+            cookie_samesite: lax
+            cookie_httponly: true
+
+        cache:
+            # Pelo mesmo motivo. O limitador de tentativa de senha usa este
+            # armazenamento: em memória, ele se perderia entre requisições e
+            # deixaria de ser proteção.
+            app: cache.adapter.doctrine_dbal
+            default_doctrine_dbal_provider: doctrine.dbal.default_connection

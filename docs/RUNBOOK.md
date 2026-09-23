@@ -16,7 +16,7 @@ Sem o código, peça a hora com minuto e o e-mail da conta.
 ## A sonda
 
 ```bash
-curl -s https://almanaque.com.br/api/saude | jq
+curl -s https://almanaque.com.br/rest/saude | jq
 ```
 
 | Resposta | O que significa | Urgência |

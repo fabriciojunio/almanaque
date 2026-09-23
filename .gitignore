@@ -21,3 +21,10 @@
 node_modules/
 test-results/
 playwright-report/
+
+.vercel
+
+# O .env e o .env.test vão para o repositório: são a configuração padrão, sem
+# segredo. O que fica de fora é o local, que tem senha de banco.
+/.env.local
+/.env.*.local

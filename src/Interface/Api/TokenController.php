@@ -45,7 +45,7 @@ final class TokenController extends AbstractController
     ) {
     }
 
-    #[Route('/api/tokens', name: 'api_token_criar', methods: ['POST'])]
+    #[Route('/rest/tokens', name: 'api_token_criar', methods: ['POST'])]
     public function criar(Request $requisicao): JsonResponse
     {
         if (!$this->limitadorDeLogin->create($requisicao->getClientIp())->consume()->isAccepted()) {

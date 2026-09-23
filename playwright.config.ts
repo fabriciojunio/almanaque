@@ -10,16 +10,26 @@ import { defineConfig, devices } from '@playwright/test'
     php bin/console doctrine:schema:create --env=test
     php bin/console doctrine:fixtures:load --env=test -n
 */
+// Sem ALVO, sobe o servidor local. Com ALVO, roda contra o endereço
+// publicado: é a mesma bateria conferindo que a publicação funciona.
+const alvo = process.env.ALVO ?? 'http://127.0.0.1:8099'
+
 export default defineConfig({
   testDir: './e2e',
   globalSetup: './e2e/preparar.ts',
+
+  // Contra o endereço publicado cada passo atravessa a internet, a função
+  // sem servidor pode estar fria e o banco fica em outra região. O caminho
+  // do chamado tem uma dúzia de idas e vindas, e 30 segundos não dão.
+  timeout: process.env.ALVO ? 120_000 : 30_000,
+  expect: { timeout: process.env.ALVO ? 20_000 : 5_000 },
   fullyParallel: false,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,
   workers: 1,
   reporter: process.env.CI ? [['html', { open: 'never' }], ['list']] : 'list',
   use: {
-    baseURL: 'http://127.0.0.1:8099',
+    baseURL: alvo,
     trace: 'on-first-retry',
     locale: 'pt-BR',
     timezoneId: 'America/Sao_Paulo',
@@ -28,7 +38,7 @@ export default defineConfig({
     { name: 'desktop', use: { ...devices['Desktop Chrome'] } },
     { name: 'celular', use: { ...devices['Pixel 7'] } },
   ],
-  webServer: {
+  webServer: process.env.ALVO ? undefined : {
     // O -d variables_order=EGPCS não é enfeite: sem o E, o servidor embutido
     // do PHP não põe as variáveis de ambiente em $_ENV, o Symfony não enxerga
     // o APP_ENV, sobe em dev e tenta falar com o MySQL que não existe aqui.

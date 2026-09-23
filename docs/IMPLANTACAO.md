@@ -10,7 +10,7 @@ docker compose exec api php bin/console doctrine:fixtures:load -n
 docker compose exec api php bin/console almanaque:reindexar
 ```
 
-Guia em <http://localhost:8080>, console em `/suporte`, sonda em `/api/saude`.
+Guia em <http://localhost:8080>, console em `/suporte`, sonda em `/rest/saude`.
 
 O `.env.example` não traz senha padrão de propósito: subir um MySQL com senha
 conhecida na porta 3306 da máquina é deixar a porta encostada.
