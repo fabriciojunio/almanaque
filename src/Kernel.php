@@ -27,7 +27,10 @@ class Kernel extends BaseKernel
             return '/tmp/almanaque/construcao/'.$this->environment;
         }
 
-        return $this->getProjectDir().'/var/cache/'.$this->environment.'/construcao';
+        // Fora de var/cache de propósito: cache:clear apaga a pasta de cache
+        // inteira, e com a construção lá dentro ela some junto, no meio de um
+        // comando que continua rodando.
+        return $this->getProjectDir().'/var/construcao/'.$this->environment;
     }
 
     /**
