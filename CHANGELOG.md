@@ -17,11 +17,13 @@ Formato baseado no [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
 - API pública do guia e API autenticada de chamados, com token de hash no
   banco.
 - Três comandos de operação: cobrar, expirar e reindexar.
-- 149 testes automatizados e 32 de navegador, no desktop e no celular.
+- 151 testes automatizados e 32 de navegador, no desktop e no celular.
 - CI que roda a bateria em SQLite, em MySQL 8 e com Elasticsearch no ar, e que
   reprova se os testes de busca se pularem.
 - Imagem de produção sem Composer, sem Xdebug e sem root; manifestos do
   Kubernetes com conferidor no CI.
+- Demonstração pública em <https://almanaque-ecru.vercel.app>, com PostgreSQL
+  gerenciado e a busca respondendo pelo banco.
 
 ### Corrigido antes de existir versão
 
@@ -32,3 +34,11 @@ Formato baseado no [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
 - A barra de topo do console não cabia num aparelho de 412 pontos.
 - A busca de problemas conhecidos só achava frase exata.
 - A contagem de anúncios da categoria raiz ignorava as filhas.
+- O LIKE das buscas era sensível a maiúscula no PostgreSQL: procurar por
+  "padaria" não achava "Padaria Estrela".
+- O ponto de entrada `public/index.php` era servido como arquivo estático na
+  raiz da demonstração, entregando o código-fonte como download.
+- Atrás do proxy que termina o TLS, o redirecionamento saía como http e o
+  cookie de sessão não voltava, derrubando quem acabara de entrar.
+- O cabeçalho `X-Powered-By` posto pelo próprio PHP não passava pelo objeto de
+  resposta e escapava da limpeza.

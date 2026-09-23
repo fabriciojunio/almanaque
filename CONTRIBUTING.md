@@ -17,7 +17,7 @@ cai para o banco. Para o ambiente completo, `make subir`.
 
 ```bash
 make revisar   # formatação, análise estática nível 8, auditoria de dependência
-make testar    # 149 testes
+make testar    # 151 testes
 make e2e       # 32 testes de navegador, quando mexer na interface
 ```
 

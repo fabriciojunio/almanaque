@@ -6,6 +6,9 @@
 [![Elasticsearch](https://img.shields.io/badge/Elasticsearch-8-005571?logo=elasticsearch&logoColor=white)](https://elastic.co)
 [![Licença](https://img.shields.io/badge/licença-MIT-black)](LICENSE)
 
+**No ar: <https://almanaque-ecru.vercel.app>** — com dados de demonstração e as
+contas de acesso em [docs/DEMONSTRACAO.md](docs/DEMONSTRACAO.md).
+
 Plataforma para publicar guias de empresas e classificados. Cada cliente tem o
 portal dele: categorias próprias, anunciantes próprios, assinatura própria. O
 Almanaque é o que roda embaixo de todos eles.
@@ -89,7 +92,7 @@ contexto de cada uma em [docs/adr/](docs/adr/).
 ## Testes
 
 ```bash
-make testar     # 149 testes: unidade, integração e HTTP
+make testar     # 151 testes: unidade, integração e HTTP
 make e2e        # 32 testes de navegador, no desktop e no celular
 make revisar    # PHP-CS-Fixer e PHPStan nível 8
 ```

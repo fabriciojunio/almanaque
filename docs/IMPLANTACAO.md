@@ -15,6 +15,50 @@ Guia em <http://localhost:8080>, console em `/suporte`, sonda em `/rest/saude`.
 O `.env.example` não traz senha padrão de propósito: subir um MySQL com senha
 conhecida na porta 3306 da máquina é deixar a porta encostada.
 
+## Em função sem servidor (é o que está no ar)
+
+A demonstração pública roda na Vercel, com PostgreSQL gerenciado e sem
+Elasticsearch. O alvo real do produto é o Kubernetes descrito mais abaixo;
+esta forma existe para haver um endereço que qualquer pessoa abre.
+
+O ponto de entrada é `api/index.php`, e o `vercel.json` manda todo caminho
+para lá, menos fonte, estilo, favicon e `robots.txt`, que são servidos como
+arquivo. O `public/index.php` fica no `.vercelignore`: sem isso a plataforma
+o trata como arquivo estático e entrega o código-fonte como download na raiz.
+
+Variáveis que o ambiente precisa:
+
+```
+APP_ENV=prod
+APP_SECRET=<32 bytes em hexa>
+DATABASE_URL=postgresql://usuario:senha@host/banco?sslmode=require
+```
+
+Sem `ELASTICSEARCH_URL`, a busca cai para o banco, que é o comportamento
+projetado e não um remendo.
+
+Quatro coisas mudam em relação a um servidor comum:
+
+**Disco somente leitura.** O `Kernel` separa o que é gerado na construção do
+que é escrito em execução e, quando `VERCEL` está no ambiente, joga cache e
+log em `/tmp`. É por isso que `getBuildDir()` existe: o container compilado
+guarda dentro dele o caminho absoluto do cache, e o caminho da máquina que
+constrói não existe na que executa.
+
+**Sessão e limitador de tentativa no banco.** Instância não dura, e duas
+requisições seguidas caem em processos diferentes: sessão em arquivo
+deslogaria o analista, e limitador em memória nunca contaria a segunda
+tentativa. Os dois vão para o PostgreSQL (`PdoSessionHandler` na tabela
+`sessoes`, e `cache.adapter.doctrine_dbal` para o resto).
+
+**Proxy que termina o TLS.** Sem `trusted_proxies`, todo redirecionamento sai
+como `http`, o navegador não devolve o cookie marcado como seguro e o login
+não gruda.
+
+**A pasta `api` é reservada.** A plataforma responde 404 em qualquer caminho
+sob `/api` que não seja um arquivo dela. Por isso o prefixo da API é `/rest`
+— ver [ADR 0007](adr/0007-prefixo-rest.md).
+
 ## Sem Docker
 
 Precisa de PHP 8.3 com `intl`, `pdo_sqlite` e `pdo_mysql`, e do Composer.

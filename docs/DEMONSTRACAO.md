@@ -1,5 +1,14 @@
 # Demonstração
 
+## Sem subir nada
+
+<https://almanaque-ecru.vercel.app>, com os mesmos dados desta página.
+
+Duas diferenças em relação à máquina local, e as duas são de propósito: não há
+Elasticsearch, então a busca responde pelo banco e o rodapé do resultado diz
+isso; e os comandos de cobrança e expiração não têm terminal, então o roteiro
+do item 7 só roda com o projeto na mão.
+
 ## Subir
 
 ```bash
