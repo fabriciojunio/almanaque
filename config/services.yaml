@@ -1,23 +1,49 @@
 # yaml-language-server: $schema=../vendor/symfony/dependency-injection/Loader/schema/services.schema.json
 
-# This file is the entry point to configure your own services.
-# Files in the packages/ subdirectory configure your dependencies.
-# See also https://symfony.com/doc/current/service_container/import.html
-
-# Put parameters here that don't need to change on each machine where the app is deployed
-# https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
 parameters:
+    app.versao: '%env(APP_VERSAO)%'
+    app.elasticsearch.url: '%env(ELASTICSEARCH_URL)%'
+    app.elasticsearch.indice: '%env(ELASTICSEARCH_INDICE)%'
 
 services:
-    # default configuration for services in *this* file
     _defaults:
-        autowire: true      # Automatically injects dependencies in your services.
-        autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
+        autowire: true
+        autoconfigure: true
+        bind:
+            string $versaoDaAplicacao: '%app.versao%'
+            # O Symfony nomeia o serviço do limitador pela chave do YAML
+            # (login vira $loginLimiter). Os nomes daqui ficam em português,
+            # como o resto do código, então a ligação é explícita.
+            Symfony\Component\RateLimiter\RateLimiterFactoryInterface $limitadorDeLogin: '@limiter.login'
+            Symfony\Component\RateLimiter\RateLimiterFactoryInterface $limitadorDeBusca: '@limiter.busca_publica'
+            Symfony\Component\RateLimiter\RateLimiterFactoryInterface $limitadorDeChamado: '@limiter.abertura_de_chamado'
 
-    # makes classes in src/ available to be used as services
-    # this creates a service per class whose id is the fully-qualified class name
     App\:
         resource: '../src/'
+        exclude:
+            - '../src/Dominio/*/[A-Z]*.php'
+            - '../src/Kernel.php'
 
-    # add more service definitions when explicit configuration is needed
-    # please note that last definitions always *replace* previous ones
+    # Os repositórios são serviços, mas as entidades e os enums do domínio não.
+    App\Dominio\:
+        resource: '../src/Dominio/*/Repositorio/'
+
+    # Qual busca a aplicação usa é decidido na partida, pela presença da
+    # variável de ambiente. Ver FabricaDeBusca.
+    App\Dominio\Busca\MotorDeBusca:
+        factory: ['App\Infraestrutura\Busca\FabricaDeBusca', 'motor']
+        arguments:
+            $url: '%app.elasticsearch.url%'
+            $indice: '%app.elasticsearch.indice%'
+
+    # Precisa vir antes do resolvedor do Doctrine, que tentaria achar o portal
+    # pelo identificador e devolveria 404 antes de a rota chegar ao controller.
+    App\Infraestrutura\Http\ResolvedorDePortal:
+        tags:
+            - { name: controller.argument_value_resolver, priority: 150 }
+
+    App\Dominio\Busca\Indexador:
+        factory: ['App\Infraestrutura\Busca\FabricaDeBusca', 'indexador']
+        arguments:
+            $url: '%app.elasticsearch.url%'
+            $indice: '%app.elasticsearch.indice%'

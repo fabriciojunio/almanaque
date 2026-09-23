@@ -1,0 +1,35 @@
+framework:
+    rate_limiter:
+        # A porta que mais leva tentativa automatizada. Cinco por minuto e por
+        # endereço: o suficiente para quem errou a senha duas vezes, pouco para
+        # quem está varrendo uma lista de senhas.
+        login:
+            policy: sliding_window
+            limit: 5
+            interval: '1 minute'
+
+        # A busca pública é cara: cada chamada vira consulta no índice. O teto
+        # é generoso para uso humano e corta raspagem.
+        busca_publica:
+            policy: token_bucket
+            limit: 60
+            rate: { interval: '1 minute', amount: 30 }
+
+        # Abertura de chamado por quem já está autenticado. O limite existe
+        # para um laço com defeito do lado do cliente não encher a fila do
+        # suporte com o mesmo chamado repetido.
+        abertura_de_chamado:
+            policy: fixed_window
+            limit: 10
+            interval: '1 hour'
+
+when@test:
+    framework:
+        cache:
+            pools:
+                # Na bateria a contagem precisa sobreviver de uma requisição
+                # para a outra, senão o teste do próprio limite nunca dispara.
+                # Quem zera entre um teste e outro é o CasoDeTesteHttp, que
+                # limpa este armazenamento no começo de cada um.
+                cache.rate_limiter:
+                    adapter: cache.adapter.filesystem

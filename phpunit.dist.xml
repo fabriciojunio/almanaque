@@ -18,8 +18,16 @@
     </php>
 
     <testsuites>
-        <testsuite name="Project Test Suite">
-            <directory>tests</directory>
+        <testsuite name="unidade">
+            <directory>tests/Unidade</directory>
+        </testsuite>
+
+        <testsuite name="integracao">
+            <directory>tests/Integracao</directory>
+        </testsuite>
+
+        <testsuite name="http">
+            <directory>tests/Http</directory>
         </testsuite>
     </testsuites>
 
@@ -40,5 +48,9 @@
     </source>
 
     <extensions>
+        <!-- Cada teste roda dentro de uma transação que volta atrás no fim.
+             É o que permite carregar os dados de exemplo uma vez só e ainda
+             assim cada teste começar do mesmo estado. -->
+        <bootstrap class="DAMA\DoctrineTestBundle\PHPUnit\PHPUnitExtension" />
     </extensions>
 </phpunit>
