@@ -1,0 +1,14 @@
+<li class="anuncio {{ item.destaque ? 'destaque' }}">
+    <div>
+        <h3>
+            {% if item.destaque %}<span class="manicula" aria-hidden="true">☞</span>{% endif %}
+            <a href="{{ path('guia_anuncio', {portal: portal.apelido, apelido: item.apelido}) }}">{{ item.titulo }}</a>
+        </h3>
+        <p class="categoria">{{ item.categoria }}{% if item.cidade %} · {{ item.cidade }}{% endif %}</p>
+        <p>{{ item.resumo }}</p>
+    </div>
+    <div class="contato">
+        {% if item.telefone %}{{ item.telefone }}{% endif %}
+        {% if item.destaque %}<br><span class="tarja tarja-atencao">Destaque</span>{% endif %}
+    </div>
+</li>

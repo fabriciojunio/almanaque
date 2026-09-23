@@ -96,8 +96,8 @@ class Categoria
 
     public function caminho(): string
     {
-        return $this->ehRaiz()
-            ? $this->nome
-            : $this->pai->nome().' / '.$this->nome;
+        $pai = $this->pai;
+
+        return null === $pai ? $this->nome : $pai->nome().' / '.$this->nome;
     }
 }

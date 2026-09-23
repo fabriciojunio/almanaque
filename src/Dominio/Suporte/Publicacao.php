@@ -64,11 +64,7 @@ class Publicacao
     public function __construct(Portal $portal, string $versaoNova, string $publicadaPor)
     {
         if (version_compare($versaoNova, $portal->versao(), '<=')) {
-            throw new \DomainException(sprintf(
-                'O portal já está na versão %s; publicar %s seria voltar no tempo.',
-                $portal->versao(),
-                $versaoNova,
-            ));
+            throw new \DomainException(sprintf('O portal já está na versão %s; publicar %s seria voltar no tempo.', $portal->versao(), $versaoNova));
         }
 
         $this->portal = $portal;
@@ -154,10 +150,7 @@ class Publicacao
     public function concluir(): void
     {
         if (!$this->todasAsVerificacoesPassaram()) {
-            throw new \DomainException(
-                'Publicação com verificação reprovada não se conclui: '
-                .implode(', ', $this->verificacoesReprovadas())
-            );
+            throw new \DomainException('Publicação com verificação reprovada não se conclui: '.implode(', ', $this->verificacoesReprovadas()));
         }
 
         $this->situacao = SituacaoPublicacao::CONCLUIDA;

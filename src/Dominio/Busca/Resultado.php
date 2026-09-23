@@ -7,8 +7,8 @@ namespace App\Dominio\Busca;
 final readonly class Resultado
 {
     /**
-     * @param list<ItemEncontrado>  $itens
-     * @param array<string, int>    $facetasPorCategoria nome da categoria => quantidade
+     * @param list<ItemEncontrado> $itens
+     * @param array<string, int>   $facetasPorCategoria nome da categoria => quantidade
      */
     public function __construct(
         public array $itens,

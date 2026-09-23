@@ -1,0 +1,21 @@
+<aside class="indice">
+    <h2>Categorias</h2>
+    <ul>
+        {% for ramo in categorias %}
+            <li class="{{ categoriaEscolhida == ramo.categoria.apelido ? 'marcado' }}">
+                <a href="{{ path('guia_busca', {portal: portal.apelido, categoria: ramo.categoria.apelido}) }}">
+                    {{ ramo.categoria.nome }}
+                    <span class="conta">{{ ramo.quantidade }}</span>
+                </a>
+            </li>
+            {% for filha in ramo.filhas %}
+                <li class="filha {{ categoriaEscolhida == filha.categoria.apelido ? 'marcado' }}">
+                    <a href="{{ path('guia_busca', {portal: portal.apelido, categoria: filha.categoria.apelido}) }}">
+                        {{ filha.categoria.nome }}
+                        <span class="conta">{{ filha.quantidade }}</span>
+                    </a>
+                </li>
+            {% endfor %}
+        {% endfor %}
+    </ul>
+</aside>

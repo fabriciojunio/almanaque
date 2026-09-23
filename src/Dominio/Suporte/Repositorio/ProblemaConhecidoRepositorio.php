@@ -24,22 +24,59 @@ class ProblemaConhecidoRepositorio extends ServiceEntityRepository
     }
 
     /**
-     * Procura pelo sintoma, que é como o chamado chega.
+     * Procura pelas palavras do relato, que é como o chamado chega.
+     *
+     * A procura é palavra por palavra, e não pela frase inteira: ninguém
+     * digita o sintoma com as mesmas palavras que estão gravadas. Quem abre o
+     * chamado escreve "não aparece na busca", e o registro diz "demora a
+     * aparecer no índice". Todas as palavras precisam casar em algum campo,
+     * senão qualquer termo comum traria a base inteira.
+     *
+     * Palavra de até duas letras fica de fora: "na" e "de" casam com tudo.
      *
      * @return list<ProblemaConhecido>
      */
     public function procurar(string $termo, int $limite = 10): array
     {
-        $escapado = addcslashes(trim($termo), '\\%_');
+        $termo = trim($termo);
 
-        return $this->createQueryBuilder('p')
-            ->andWhere('p.sintoma LIKE :termo OR p.titulo LIKE :termo OR p.codigo = :codigo')
-            ->setParameter('termo', '%'.$escapado.'%')
-            ->setParameter('codigo', trim($termo))
+        if ('' === $termo) {
+            return [];
+        }
+
+        $consulta = $this->createQueryBuilder('p')
             ->orderBy('p.registradoEm', 'DESC')
-            ->setMaxResults($limite)
-            ->getQuery()
-            ->getResult();
+            ->setMaxResults($limite);
+
+        // O código é identificador, então casa inteiro e sozinho.
+        if (1 === preg_match('/^PC-\d+$/i', $termo)) {
+            return $consulta
+                ->andWhere('UPPER(p.codigo) = :codigo')
+                ->setParameter('codigo', mb_strtoupper($termo))
+                ->getQuery()
+                ->getResult();
+        }
+
+        $palavras = array_filter(
+            preg_split('/\s+/', $termo) ?: [],
+            static fn (string $palavra) => mb_strlen($palavra) > 2,
+        );
+
+        if ([] === $palavras) {
+            return [];
+        }
+
+        foreach (array_values($palavras) as $posicao => $palavra) {
+            $chave = 'palavra'.$posicao;
+            $consulta
+                ->andWhere(sprintf(
+                    '(p.titulo LIKE :%1$s OR p.sintoma LIKE :%1$s OR p.causa LIKE :%1$s)',
+                    $chave,
+                ))
+                ->setParameter($chave, '%'.addcslashes($palavra, '\\%_').'%');
+        }
+
+        return $consulta->getQuery()->getResult();
     }
 
     /** @return list<ProblemaConhecido> */

@@ -52,6 +52,12 @@ class Usuario implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function __construct(string $email, string $nome, Papel $papel, ?Portal $portal = null)
     {
+        $normalizado = filter_var(mb_strtolower(trim($email)), FILTER_VALIDATE_EMAIL);
+
+        if (false === $normalizado) {
+            throw new \InvalidArgumentException('E-mail inválido.');
+        }
+
         if ($papel->atravessaPortais() && null !== $portal) {
             throw new \InvalidArgumentException('Quem atravessa portais não pertence a um portal.');
         }
@@ -60,7 +66,7 @@ class Usuario implements UserInterface, PasswordAuthenticatedUserInterface
             throw new \InvalidArgumentException('Este papel precisa de um portal.');
         }
 
-        $this->email = mb_strtolower($email);
+        $this->email = $normalizado;
         $this->nome = $nome;
         $this->papel = $papel;
         $this->portal = $portal;
@@ -130,6 +136,10 @@ class Usuario implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function getUserIdentifier(): string
     {
+        if ('' === $this->email) {
+            throw new \LogicException('Usuário gravado sem e-mail; o banco está inconsistente.');
+        }
+
         return $this->email;
     }
 

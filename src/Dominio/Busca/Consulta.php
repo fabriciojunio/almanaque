@@ -27,10 +27,7 @@ final readonly class Consulta
         }
 
         if ($tamanhoDaPagina < 1 || $tamanhoDaPagina > self::TAMANHO_MAXIMO_DE_PAGINA) {
-            throw new \InvalidArgumentException(sprintf(
-                'Tamanho de página fora do intervalo de 1 a %d.',
-                self::TAMANHO_MAXIMO_DE_PAGINA,
-            ));
+            throw new \InvalidArgumentException(sprintf('Tamanho de página fora do intervalo de 1 a %d.', self::TAMANHO_MAXIMO_DE_PAGINA));
         }
     }
 

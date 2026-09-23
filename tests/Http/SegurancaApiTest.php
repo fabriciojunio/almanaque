@@ -36,6 +36,8 @@ class SegurancaApiTest extends CasoDeTesteHttp
     {
         $usuario = static::getContainer()->get(UsuarioRepositorio::class)
             ->porEmail('suporte@almanaque.com.br');
+        self::assertNotNull($usuario);
+
         [$token, $segredo] = TokenAcesso::gerar($usuario, 'teste de revogação');
         $token->revogar();
         $this->gerenciador()->persist($token);
@@ -51,6 +53,8 @@ class SegurancaApiTest extends CasoDeTesteHttp
     {
         $usuario = static::getContainer()->get(UsuarioRepositorio::class)
             ->porEmail('anunciante@guiadebauru.com.br');
+        self::assertNotNull($usuario);
+
         [$token, $segredo] = TokenAcesso::gerar($usuario, 'teste de desativação');
         $this->gerenciador()->persist($token);
         $usuario->desativar();

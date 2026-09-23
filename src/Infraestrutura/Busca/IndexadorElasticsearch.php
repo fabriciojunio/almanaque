@@ -8,6 +8,7 @@ use App\Dominio\Anuncio\Anuncio;
 use App\Dominio\Busca\Indexador;
 use App\Dominio\Portal\Portal;
 use Elastic\Elasticsearch\Client;
+use Elastic\Elasticsearch\Response\Elasticsearch as ElasticsearchResponse;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -29,7 +30,9 @@ final readonly class IndexadorElasticsearch implements Indexador
 
     public function criarIndice(): void
     {
-        if ($this->cliente->indices()->exists(['index' => $this->indice])->asBool()) {
+        $existe = $this->cliente->indices()->exists(['index' => $this->indice]);
+
+        if ($existe instanceof ElasticsearchResponse && $existe->asBool()) {
             return;
         }
 

@@ -1,0 +1,46 @@
+{% extends 'base.html.twig' %}
+
+{% block titulo %}{{ anuncio.titulo }} · {{ portal.nome }}{% endblock %}
+{% block descricao %}{{ anuncio.descricao|slice(0, 155) }}{% endblock %}
+
+{% block navegacao %}
+    <a href="{{ path('inicio') }}">Guias</a>
+    <a href="{{ path('guia', {portal: portal.apelido}) }}">{{ portal.nome }}</a>
+{% endblock %}
+
+{% block conteudo %}
+    <div class="chamada">
+        <p class="etiqueta">{{ anuncio.categoria.caminho }}</p>
+        <h1>{{ anuncio.titulo }}</h1>
+        {% if anuncio.ehDestaque %}<span class="tarja tarja-atencao">Anúncio em destaque</span>{% endif %}
+    </div>
+
+    <article class="ficha">
+        <p>{{ anuncio.descricao }}</p>
+
+        <dl class="ficha-dados">
+            {% if anuncio.telefone %}
+                <dt>Telefone</dt><dd class="dado">{{ anuncio.telefone }}</dd>
+            {% endif %}
+            {% if anuncio.site %}
+                <dt>Site</dt><dd><a href="{{ anuncio.site }}" rel="nofollow noopener">{{ anuncio.site }}</a></dd>
+            {% endif %}
+            {% if anuncio.endereco %}
+                <dt>Endereço</dt>
+                <dd>{{ anuncio.endereco }}{% if anuncio.bairro %}, {{ anuncio.bairro }}{% endif %}{% if anuncio.cidade %} — {{ anuncio.cidade }}{% endif %}</dd>
+            {% endif %}
+            {% if anuncio.latitude %}
+                <dt>No mapa</dt>
+                <dd class="dado">{{ anuncio.latitude|number_format(4, ',', '.') }}, {{ anuncio.longitude|number_format(4, ',', '.') }}</dd>
+            {% endif %}
+            <dt>No guia desde</dt>
+            <dd class="dado">{{ anuncio.publicadoEm ? anuncio.publicadoEm|date('d/m/Y') : '—' }}</dd>
+        </dl>
+    </article>
+
+    <p class="espaco-acima">
+        <a class="botao botao-fraco" href="{{ path('guia_busca', {portal: portal.apelido, categoria: anuncio.categoria.apelido}) }}">
+            Ver outros em {{ anuncio.categoria.nome }}
+        </a>
+    </p>
+{% endblock %}

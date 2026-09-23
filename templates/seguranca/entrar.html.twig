@@ -1,0 +1,36 @@
+{% extends 'base.html.twig' %}
+
+{% block titulo %}Entrar no Almanaque{% endblock %}
+
+{% block conteudo %}
+    <div class="entrar">
+        <div class="chamada">
+            <h1>Entrar</h1>
+            <p>Acesso do time e dos donos de portal.</p>
+        </div>
+
+        {% if erro %}
+            <p class="aviso aviso-erro">E-mail ou senha inválidos.</p>
+        {% endif %}
+
+        <form method="post" class="ficha">
+            <label class="campo">
+                <span>E-mail</span>
+                <input type="email" name="_username" value="{{ ultimoEmail }}" autocomplete="email" required autofocus>
+            </label>
+
+            <label class="campo">
+                <span>Senha</span>
+                <input type="password" name="_password" autocomplete="current-password" required>
+            </label>
+
+            <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+
+            <button class="botao botao-largo" type="submit">Entrar</button>
+        </form>
+
+        <p class="etiqueta espaco-acima-curto">
+            Na demonstração: suporte@almanaque.com.br, senha demonstracao2026
+        </p>
+    </div>
+{% endblock %}

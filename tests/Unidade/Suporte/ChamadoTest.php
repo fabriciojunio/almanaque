@@ -273,12 +273,12 @@ class ChamadoTest extends TestCase
 
         $chamado->repriorizar(Prioridade::CRITICA, 'o portal inteiro está fora do ar');
 
+        $anotacao = $chamado->anotacoes()->first();
+
         $this->assertSame(Prioridade::CRITICA, $chamado->prioridade());
-        $this->assertStringContainsString(
-            'o portal inteiro está fora do ar',
-            $chamado->anotacoes()->first()->texto(),
-        );
-        $this->assertFalse($chamado->anotacoes()->first()->ehVisivelAoCliente());
+        $this->assertNotFalse($anotacao);
+        $this->assertStringContainsString('o portal inteiro está fora do ar', $anotacao->texto());
+        $this->assertFalse($anotacao->ehVisivelAoCliente());
     }
 
     #[Test]

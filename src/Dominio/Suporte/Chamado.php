@@ -244,9 +244,7 @@ class Chamado
         }
 
         if (Classificacao::CUSTOMIZACAO_DO_CLIENTE === $classificacao && !$this->portal->estaCustomizado()) {
-            throw new \DomainException(
-                'O portal não tem customização registrada; a classificação não se sustenta.'
-            );
+            throw new \DomainException('O portal não tem customização registrada; a classificação não se sustenta.');
         }
 
         $this->classificacao = $classificacao;
@@ -319,10 +317,7 @@ class Chamado
     private function exigirAberto(): void
     {
         if (SituacaoChamado::ABERTO !== $this->situacao) {
-            throw new \DomainException(sprintf(
-                'O chamado já está %s.',
-                mb_strtolower($this->situacao->rotulo())
-            ));
+            throw new \DomainException(sprintf('O chamado já está %s.', mb_strtolower($this->situacao->rotulo())));
         }
     }
 }

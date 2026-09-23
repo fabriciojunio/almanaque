@@ -9,6 +9,7 @@ use App\Dominio\Busca\ItemEncontrado;
 use App\Dominio\Busca\MotorDeBusca;
 use App\Dominio\Busca\Resultado;
 use Elastic\Elasticsearch\Client;
+use Elastic\Elasticsearch\Response\Elasticsearch as ElasticsearchResponse;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -29,7 +30,7 @@ final readonly class BuscaElasticsearch implements MotorDeBusca
 
     public function buscar(Consulta $consulta): Resultado
     {
-        $resposta = $this->cliente->search([
+        $resposta = $this->resposta($this->cliente->search([
             'index' => $this->indice,
             'body' => [
                 'from' => $consulta->deslocamento(),
@@ -42,7 +43,7 @@ final readonly class BuscaElasticsearch implements MotorDeBusca
                     ],
                 ],
             ],
-        ])->asArray();
+        ]))->asArray();
 
         return new Resultado(
             itens: $this->lerItens($resposta),
@@ -60,7 +61,7 @@ final readonly class BuscaElasticsearch implements MotorDeBusca
     public function estaDisponivel(): bool
     {
         try {
-            return $this->cliente->ping()->asBool();
+            return $this->resposta($this->cliente->ping())->asBool();
         } catch (\Throwable $falha) {
             $this->log->warning('Elasticsearch não respondeu ao ping.', [
                 'erro' => $falha->getMessage(),
@@ -68,6 +69,20 @@ final readonly class BuscaElasticsearch implements MotorDeBusca
 
             return false;
         }
+    }
+
+    /**
+     * O cliente devolve resposta ou promessa, conforme a configuração. Aqui é
+     * sempre síncrono, e esta conversão deixa isso explícito no lugar de
+     * espalhar suposição pelo código.
+     */
+    private function resposta(mixed $devolvido): ElasticsearchResponse
+    {
+        if (!$devolvido instanceof ElasticsearchResponse) {
+            throw new \RuntimeException('O Elasticsearch respondeu de forma inesperada.');
+        }
+
+        return $devolvido;
     }
 
     /**
@@ -117,7 +132,10 @@ final readonly class BuscaElasticsearch implements MotorDeBusca
     }
 
     /**
-     * @return list<array<string, mixed>>
+     * A ordenação mistura o nome de um campo com um mapa de campo e direção,
+     * que é o formato que o Elasticsearch aceita.
+     *
+     * @return list<mixed>
      */
     private function montarOrdenacao(Consulta $consulta): array
     {

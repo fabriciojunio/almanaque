@@ -1,0 +1,61 @@
+{% extends 'base.html.twig' %}
+
+{% block titulo %}Publicações de versão{% endblock %}
+
+{% block navegacao %}
+    <a href="{{ path('inicio') }}">Guias</a>
+    <a href="{{ path('suporte_fila') }}">Fila</a>
+    <a href="{{ path('suporte_problemas') }}">Problemas conhecidos</a>
+    <a href="{{ path('suporte_publicacoes') }}">Publicações</a>
+{% endblock %}
+
+{% block conteudo %}
+    <div class="chamada">
+        <h1>Publicações de versão</h1>
+        <p>
+            Publicar é a parte fácil. O que dá trabalho é responder, meia hora
+            depois, se o ambiente do cliente ficou de pé.
+        </p>
+    </div>
+
+    <table class="tabela">
+        <thead>
+        <tr>
+            <th>Portal</th>
+            <th>Versão</th>
+            <th>Quem publicou</th>
+            <th>Verificações</th>
+            <th>Resultado</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for publicacao in publicacoes %}
+            <tr>
+                <td>{{ publicacao.portal.nome }}</td>
+                <td class="dado">{{ publicacao.versaoAnterior }} → {{ publicacao.versaoNova }}</td>
+                <td>
+                    {{ publicacao.publicadaPor }}
+                    <br><span class="etiqueta">{{ publicacao.iniciadaEm|date('d/m/Y H:i') }}</span>
+                </td>
+                <td>
+                    {% for nome, aprovada in publicacao.verificacoes %}
+                        <span class="tarja {{ aprovada ? 'tarja-ok' : 'tarja-alerta' }}">{{ nome }}</span>
+                    {% endfor %}
+                </td>
+                <td>
+                    {% if publicacao.situacao.value == 'revertida' %}
+                        <span class="tarja tarja-alerta">revertida</span>
+                        <br><span class="etiqueta">{{ publicacao.observacao }}</span>
+                    {% else %}
+                        <span class="tarja {{ publicacao.situacao.value == 'concluida' ? 'tarja-ok' }}">
+                            {{ publicacao.situacao.rotulo }}
+                        </span>
+                    {% endif %}
+                </td>
+            </tr>
+        {% else %}
+            <tr><td colspan="5" class="vazio">Nenhuma publicação registrada.</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

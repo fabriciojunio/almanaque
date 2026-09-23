@@ -160,11 +160,7 @@ class Cobranca
     private function exigirPendente(): void
     {
         if (!$this->estaPendente()) {
-            throw new \DomainException(sprintf(
-                'A cobrança da competência %s já foi fechada como %s.',
-                $this->competencia,
-                $this->situacao->value,
-            ));
+            throw new \DomainException(sprintf('A cobrança da competência %s já foi fechada como %s.', $this->competencia, $this->situacao->value));
         }
     }
 }

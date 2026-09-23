@@ -1,0 +1,629 @@
+/*
+  Tudo que decide cor, fonte e forma do Almanaque está neste arquivo.
+
+  A referência é o almanaque impresso e a lista telefônica: papel de jornal,
+  coluna estreita separada por filete, título pesado e condensado, texto em
+  serifada, e o amarelo da lista como única cor forte. Ver
+  docs/IDENTIDADE_VISUAL.md antes de mexer.
+*/
+
+:root {
+  --papel: #eeece7;
+  --papel-escuro: #e3e0d9;
+  --chapa: #ffffff;
+
+  --tinta: #191714;
+  --tinta-suave: #4a453d;
+  --grafite: #6f6a60;
+  --filete: #d3cec3;
+  --filete-forte: #2b2721;
+
+  --lista: #f5c400;
+  --lista-fraca: #fbf0c4;
+  --carimbo: #a3231b;
+  --confere: #1d6b3f;
+
+  --fonte-titulo: 'Archivo', 'Arial Narrow', sans-serif;
+  --fonte-corpo: 'Source Serif 4', Georgia, serif;
+  --fonte-dado: 'Courier Prime', 'Courier New', monospace;
+
+  --coluna: 1120px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--papel);
+  color: var(--tinta);
+  font-family: var(--fonte-corpo);
+  font-size: 16px;
+  line-height: 1.55;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--fonte-titulo);
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  line-height: 1.1;
+  margin: 0;
+}
+
+a {
+  color: var(--tinta);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+}
+
+a:hover {
+  text-decoration-color: var(--lista);
+  text-decoration-thickness: 3px;
+}
+
+:focus-visible {
+  outline: 3px solid var(--lista);
+  outline-offset: 2px;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+.faixa {
+  margin: 0 auto;
+  max-width: var(--coluna);
+  padding: 0 20px;
+}
+
+/* ------------------------------------------------------- cabeçalho e rodapé */
+
+.topo {
+  background: var(--tinta);
+  color: var(--papel);
+}
+
+.topo a {
+  color: var(--papel);
+}
+
+.topo-linha {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 56px;
+}
+
+.marca {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+  font-family: var(--fonte-titulo);
+  font-weight: 800;
+  font-size: 22px;
+  letter-spacing: -0.03em;
+  text-decoration: none;
+}
+
+.marca em {
+  font-style: normal;
+  color: var(--lista);
+}
+
+.topo nav {
+  display: flex;
+  gap: 18px;
+  font-family: var(--fonte-titulo);
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+/* A régua dupla é a assinatura do cabeçalho de jornal. */
+.regua-dupla {
+  border-top: 3px solid var(--filete-forte);
+  border-bottom: 1px solid var(--filete-forte);
+  height: 4px;
+}
+
+.rodape {
+  margin-top: 48px;
+  border-top: 1px solid var(--filete);
+  padding: 20px 0 40px;
+  font-family: var(--fonte-dado);
+  font-size: 12px;
+  color: var(--tinta-suave);
+}
+
+.rodape-linha {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 24px;
+  justify-content: space-between;
+}
+
+/* ------------------------------------------------------------------ títulos */
+
+.chamada {
+  padding: 28px 0 18px;
+}
+
+.chamada h1 {
+  font-size: clamp(30px, 5vw, 44px);
+  font-weight: 800;
+}
+
+.chamada p {
+  margin: 8px 0 0;
+  color: var(--tinta-suave);
+  max-width: 62ch;
+}
+
+.etiqueta {
+  font-family: var(--fonte-dado);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--tinta-suave);
+}
+
+.dado {
+  font-family: var(--fonte-dado);
+  font-variant-numeric: tabular-nums;
+}
+
+/* -------------------------------------------------------------------- busca */
+
+.busca {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  border: 1px solid var(--filete-forte);
+  background: var(--chapa);
+  padding: 8px;
+}
+
+.busca input[type='search'],
+.busca select {
+  font: inherit;
+  font-size: 15px;
+  border: 1px solid var(--filete);
+  background: var(--chapa);
+  color: var(--tinta);
+  padding: 8px 10px;
+  min-height: 40px;
+}
+
+.busca input[type='search'] {
+  flex: 1 1 260px;
+}
+
+.botao {
+  font-family: var(--fonte-titulo);
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  border: 1px solid var(--filete-forte);
+  background: var(--lista);
+  color: var(--tinta);
+  padding: 10px 18px;
+  min-height: 40px;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.botao:hover {
+  background: var(--tinta);
+  color: var(--lista);
+}
+
+.botao-fraco {
+  background: var(--chapa);
+}
+
+.botao-fraco:hover {
+  background: var(--papel-escuro);
+  color: var(--tinta);
+}
+
+/* ------------------------------------------------------------------ colunas */
+
+.duas-colunas {
+  display: grid;
+  gap: 28px;
+  grid-template-columns: 220px 1fr;
+  align-items: start;
+}
+
+@media (max-width: 800px) {
+  .duas-colunas {
+    grid-template-columns: 1fr;
+  }
+}
+
+.indice {
+  border-top: 3px solid var(--filete-forte);
+  padding-top: 10px;
+}
+
+.indice h2 {
+  font-size: 15px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 8px;
+}
+
+.indice ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.indice li {
+  border-bottom: 1px solid var(--filete);
+}
+
+.indice a {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 7px 0;
+  font-size: 15px;
+  text-decoration: none;
+}
+
+.indice a:hover {
+  background: var(--lista-fraca);
+}
+
+.indice .conta {
+  font-family: var(--fonte-dado);
+  font-size: 12px;
+  color: var(--tinta-suave);
+}
+
+.indice .marcado {
+  background: var(--lista);
+  padding-left: 6px;
+  margin-left: -6px;
+  font-weight: 700;
+}
+
+.indice .filha a {
+  padding-left: 14px;
+  font-size: 14px;
+  color: var(--tinta-suave);
+}
+
+/* ------------------------------------------------------------------ anúncio */
+
+.lista-anuncios {
+  border-top: 3px solid var(--filete-forte);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.anuncio {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 4px 16px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--filete);
+}
+
+.anuncio h3 {
+  font-size: 19px;
+  margin: 0;
+}
+
+.anuncio h3 a {
+  text-decoration: none;
+}
+
+.anuncio h3 a:hover {
+  text-decoration: underline;
+  text-decoration-color: var(--lista);
+  text-decoration-thickness: 3px;
+}
+
+.anuncio p {
+  margin: 4px 0 0;
+  color: var(--tinta-suave);
+  font-size: 15px;
+  max-width: 68ch;
+}
+
+.anuncio .contato {
+  font-family: var(--fonte-dado);
+  font-size: 13px;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.anuncio .categoria {
+  font-family: var(--fonte-dado);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--tinta-suave);
+}
+
+/* O destaque é uma faixa amarela na lateral, como o anúncio pago que a lista
+   telefônica imprimia com fundo cheio. */
+.anuncio.destaque {
+  background: var(--lista-fraca);
+  border-left: 6px solid var(--lista);
+  padding-left: 12px;
+}
+
+.manicula {
+  color: var(--tinta);
+  vertical-align: -2px;
+  margin-right: 6px;
+}
+
+/* -------------------------------------------------------------------- ficha */
+
+.ficha {
+  background: var(--chapa);
+  border: 1px solid var(--filete-forte);
+  padding: 22px;
+}
+
+.ficha-dados {
+  display: grid;
+  gap: 2px 18px;
+  grid-template-columns: max-content 1fr;
+  margin: 18px 0 0;
+  font-size: 15px;
+}
+
+.ficha-dados dt {
+  font-family: var(--fonte-dado);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--tinta-suave);
+  padding-top: 5px;
+}
+
+.ficha-dados dd {
+  margin: 0;
+  padding-top: 3px;
+}
+
+/* ------------------------------------------------------------------- tabela */
+
+.tabela {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--chapa);
+  border: 1px solid var(--filete-forte);
+}
+
+.tabela th {
+  text-align: left;
+  font-family: var(--fonte-dado);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: 400;
+  color: var(--tinta-suave);
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--filete-forte);
+}
+
+.tabela td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--filete);
+  font-size: 15px;
+  vertical-align: top;
+}
+
+.tabela tr:last-child td {
+  border-bottom: 0;
+}
+
+.tabela tr:hover td {
+  background: var(--lista-fraca);
+}
+
+/* ------------------------------------------------------------------- tarjas */
+
+.tarja {
+  display: inline-block;
+  font-family: var(--fonte-dado);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  border: 1px solid var(--filete-forte);
+  padding: 1px 6px;
+  white-space: nowrap;
+}
+
+.tarja-alerta {
+  background: var(--carimbo);
+  border-color: var(--carimbo);
+  color: var(--chapa);
+}
+
+.tarja-atencao {
+  background: var(--lista);
+  border-color: var(--filete-forte);
+}
+
+.tarja-ok {
+  background: var(--confere);
+  border-color: var(--confere);
+  color: var(--chapa);
+}
+
+.aviso {
+  border: 1px solid var(--filete-forte);
+  border-left: 6px solid var(--lista);
+  background: var(--lista-fraca);
+  padding: 10px 14px;
+  font-size: 15px;
+  margin: 16px 0;
+}
+
+.aviso-erro {
+  border-left-color: var(--carimbo);
+  background: var(--chapa);
+}
+
+.vazio {
+  border: 1px dashed var(--filete-forte);
+  padding: 34px 20px;
+  text-align: center;
+  color: var(--tinta-suave);
+}
+
+/* ---------------------------------------------------------------- paginação */
+
+.paginacao {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 18px;
+  font-family: var(--fonte-dado);
+  font-size: 13px;
+}
+
+/* -------------------------------------------------------------- formulários */
+
+.campo {
+  display: block;
+  margin-bottom: 14px;
+}
+
+.campo span {
+  display: block;
+  font-family: var(--fonte-dado);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--tinta-suave);
+  margin-bottom: 4px;
+}
+
+.campo input,
+.campo textarea,
+.campo select {
+  font: inherit;
+  font-size: 15px;
+  width: 100%;
+  border: 1px solid var(--filete);
+  background: var(--chapa);
+  color: var(--tinta);
+  padding: 9px 10px;
+}
+
+.campo textarea {
+  min-height: 110px;
+  resize: vertical;
+}
+
+.entrar {
+  max-width: 380px;
+  margin: 56px auto;
+}
+
+/* ---------------------------------------------------------------- auxiliares
+
+   A política de conteúdo do Almanaque não libera estilo embutido, então não
+   existe style="" em template nenhum: o que seria um ajuste rápido no HTML
+   vira uma classe aqui. É chato uma vez e evita a porta que o XSS usa.
+*/
+
+.espaco-acima {
+  margin-top: 24px;
+}
+
+.espaco-acima-curto {
+  margin-top: 10px;
+}
+
+.espaco-abaixo {
+  margin-bottom: 18px;
+}
+
+.direita {
+  text-align: right;
+}
+
+.sem-quebra {
+  white-space: nowrap;
+}
+
+.miudo {
+  font-size: 12px;
+}
+
+.nota {
+  margin: 6px 0 0;
+  font-size: 14px;
+}
+
+.coluna-codigo {
+  width: 78px;
+}
+
+.botao-largo {
+  width: 100%;
+}
+
+.duas-iguais {
+  grid-template-columns: 1fr 1fr;
+}
+
+.conteudo-e-lateral {
+  grid-template-columns: 1fr 340px;
+}
+
+@media (max-width: 800px) {
+  .duas-iguais,
+  .conteudo-e-lateral {
+    grid-template-columns: 1fr;
+  }
+}
+
+.opcao {
+  display: block;
+  margin: 10px 0;
+}
+
+.opcao-nota {
+  display: block;
+  font-size: 13px;
+  color: var(--tinta-suave);
+  padding-left: 22px;
+}
+
+.marcacao {
+  display: block;
+  margin-bottom: 10px;
+}
+
+.divisor {
+  border: 0;
+  border-top: 1px solid var(--filete);
+  margin: 14px 0;
+}

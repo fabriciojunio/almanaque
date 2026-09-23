@@ -1,0 +1,65 @@
+{% extends 'base.html.twig' %}
+
+{% block titulo %}{{ termo ? termo ~ ' em ' : '' }}{{ portal.nome }}{% endblock %}
+
+{% block navegacao %}
+    <a href="{{ path('inicio') }}">Guias</a>
+    <a href="{{ path('guia', {portal: portal.apelido}) }}">{{ portal.nome }}</a>
+{% endblock %}
+
+{% block conteudo %}
+    <div class="chamada">
+        <h1>{{ termo ? 'Resultados para “' ~ termo ~ '”' : 'Todos os anúncios' }}</h1>
+        <p>
+            {{ resultado.total }} {{ resultado.total == 1 ? 'anúncio encontrado' : 'anúncios encontrados' }}
+            em {{ portal.nome }}.
+        </p>
+    </div>
+
+    {% include 'guia/_busca.html.twig' %}
+
+    {% if resultado.comReserva %}
+        <p class="aviso">
+            A busca está em modo reserva agora: o índice não respondeu e os
+            resultados vêm direto do banco, sem a mesma precisão. Já estamos
+            olhando.
+        </p>
+    {% endif %}
+
+    <div class="duas-colunas espaco-acima">
+        {% include 'guia/_indice.html.twig' %}
+
+        <section>
+            <ul class="lista-anuncios">
+                {% for item in resultado.itens %}
+                    {% include 'guia/_anuncio.html.twig' %}
+                {% else %}
+                    <li class="vazio">
+                        Nada encontrado com esse termo.
+                        Tente uma palavra mais curta, ou escolha uma categoria ao lado.
+                    </li>
+                {% endfor %}
+            </ul>
+
+            {% if paginas > 1 %}
+                <nav class="paginacao">
+                    <span>
+                        {% if pagina > 1 %}
+                            <a href="{{ path('guia_busca', app.request.query.all|merge({pagina: pagina - 1, portal: portal.apelido})) }}">← anterior</a>
+                        {% endif %}
+                    </span>
+                    <span>página {{ pagina }} de {{ paginas }}</span>
+                    <span>
+                        {% if pagina < paginas %}
+                            <a href="{{ path('guia_busca', app.request.query.all|merge({pagina: pagina + 1, portal: portal.apelido})) }}">próxima →</a>
+                        {% endif %}
+                    </span>
+                </nav>
+            {% endif %}
+
+            <p class="etiqueta espaco-acima-curto">
+                busca respondida por {{ resultado.motor }}
+            </p>
+        </section>
+    </div>
+{% endblock %}

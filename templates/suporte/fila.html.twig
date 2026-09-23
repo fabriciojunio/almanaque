@@ -1,0 +1,111 @@
+{% extends 'base.html.twig' %}
+
+{% block titulo %}Fila do suporte{% endblock %}
+
+{% block navegacao %}
+    <a href="{{ path('inicio') }}">Guias</a>
+    <a href="{{ path('suporte_fila') }}">Fila</a>
+    <a href="{{ path('suporte_problemas') }}">Problemas conhecidos</a>
+    <a href="{{ path('suporte_publicacoes') }}">Publicações</a>
+{% endblock %}
+
+{% block conteudo %}
+    <div class="chamada">
+        <h1>Fila do suporte</h1>
+        <p>
+            Ordenada por impacto e depois por idade, não pelo adjetivo que o
+            cliente usou. Todo chamado chega urgente.
+        </p>
+    </div>
+
+    <table class="tabela">
+        <thead>
+        <tr>
+            <th>Chamado</th>
+            <th>Portal</th>
+            <th>Prioridade</th>
+            <th>Situação</th>
+            <th>Classificação</th>
+            <th>Prazo</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for chamado in chamados %}
+            <tr>
+                <td>
+                    <a href="{{ path('suporte_chamado', {id: chamado.id}) }}">{{ chamado.titulo }}</a>
+                    <br><span class="etiqueta">{{ chamado.autor }}</span>
+                </td>
+                <td>
+                    {{ chamado.portal.nome }}
+                    <br><span class="dado miudo">v{{ chamado.versaoDoPortal }}</span>
+                </td>
+                <td>
+                    <span class="tarja {{ chamado.prioridade.value in ['critica', 'alta'] ? 'tarja-alerta' }}">
+                        {{ chamado.prioridade.rotulo }}
+                    </span>
+                </td>
+                <td>{{ chamado.situacao.rotulo }}</td>
+                <td>
+                    {% if chamado.classificacao %}
+                        {{ chamado.classificacao.rotulo }}
+                    {% else %}
+                        <span class="etiqueta">sem triagem</span>
+                    {% endif %}
+                </td>
+                <td class="dado">
+                    {% if chamado.estourouOPrazo %}
+                        <span class="tarja tarja-alerta">fora do prazo</span>
+                    {% else %}
+                        {{ chamado.prazoDeRespostaEm|date('d/m H:i') }}
+                    {% endif %}
+                </td>
+            </tr>
+        {% else %}
+            <tr><td colspan="6" class="vazio">Fila vazia. Bom dia.</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="duas-colunas duas-iguais espaco-acima">
+        <section>
+            <h2 class="etiqueta">Onde os chamados caem</h2>
+            <table class="tabela espaco-acima-curto">
+                <tbody>
+                {% for linha in contagem %}
+                    <tr>
+                        <td>
+                            {{ linha.classificacao.rotulo }}
+                            <br><span class="etiqueta">{{ linha.classificacao.explicacao }}</span>
+                        </td>
+                        <td class="dado direita">{{ linha.quantidade }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            <p class="etiqueta espaco-acima-curto">
+                uma pilha de dúvida de uso na mesma tela é problema de interface,
+                não de suporte
+            </p>
+        </section>
+
+        <section>
+            <h2 class="etiqueta">Problemas ainda sem correção</h2>
+            <table class="tabela espaco-acima-curto">
+                <tbody>
+                {% for problema in problemasEmAberto %}
+                    <tr>
+                        <td class="dado coluna-codigo">{{ problema.codigo }}</td>
+                        <td>
+                            <a href="{{ path('suporte_problemas', {q: problema.codigo}) }}">{{ problema.titulo }}</a>
+                            <br><span class="etiqueta">{{ problema.quantidadeDeChamados }} chamado(s) ligados</span>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr><td class="vazio">Nada em aberto.</td></tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </section>
+    </div>
+{% endblock %}

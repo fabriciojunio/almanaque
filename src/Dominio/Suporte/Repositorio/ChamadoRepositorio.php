@@ -80,7 +80,10 @@ class ChamadoRepositorio extends ServiceEntityRepository
      * documentação: uma pilha de dúvida de uso na mesma tela é problema de
      * interface, não de suporte.
      *
-     * @return array<string, int>
+     * Devolve o enum, e não a chave dele: a chave é identificador em ASCII, e
+     * quem escreve na tela é o rótulo, acentuado.
+     *
+     * @return list<array{classificacao: Classificacao, quantidade: int}>
      */
     public function contagemPorClassificacao(): array
     {
@@ -91,16 +94,20 @@ class ChamadoRepositorio extends ServiceEntityRepository
             ->getQuery()
             ->getArrayResult();
 
-        $contagem = [];
-        foreach (Classificacao::cases() as $caso) {
-            $contagem[$caso->value] = 0;
-        }
-
+        $porChave = [];
         foreach ($linhas as $linha) {
             $chave = $linha['classificacao'] instanceof Classificacao
                 ? $linha['classificacao']->value
                 : (string) $linha['classificacao'];
-            $contagem[$chave] = (int) $linha['quantidade'];
+            $porChave[$chave] = (int) $linha['quantidade'];
+        }
+
+        $contagem = [];
+        foreach (Classificacao::cases() as $caso) {
+            $contagem[] = [
+                'classificacao' => $caso,
+                'quantidade' => $porChave[$caso->value] ?? 0,
+            ];
         }
 
         return $contagem;

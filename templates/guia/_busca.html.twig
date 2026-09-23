@@ -1,0 +1,6 @@
+<form class="busca" method="get" action="{{ path('guia_busca', {portal: portal.apelido}) }}" role="search">
+    <label class="visually-hidden" for="q" hidden>Buscar no guia</label>
+    <input type="search" id="q" name="q" value="{{ termo|default('') }}"
+           placeholder="Padaria, chaveiro, oficina, dentista…" aria-label="Buscar no guia">
+    <button class="botao" type="submit">Procurar</button>
+</form>

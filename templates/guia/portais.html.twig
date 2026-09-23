@@ -1,0 +1,30 @@
+{% extends 'base.html.twig' %}
+
+{% block titulo %}Almanaque: guias e classificados{% endblock %}
+
+{% block conteudo %}
+    <div class="chamada">
+        <h1>O guia da sua cidade, no endereço que é seu.</h1>
+        <p>
+            Cada portal aqui é de um cliente: categorias próprias, anunciantes
+            próprios, assinatura própria. O Almanaque é a plataforma que roda
+            embaixo de todos eles.
+        </p>
+    </div>
+
+    <ul class="lista-anuncios">
+        {% for portal in portais %}
+            <li class="anuncio">
+                <div>
+                    <h3><a href="{{ path('guia', {portal: portal.apelido}) }}">{{ portal.nome }}</a></h3>
+                    <p class="categoria">{{ portal.dominio ?? 'sem domínio próprio' }}</p>
+                </div>
+                <div class="contato">
+                    <span class="tarja">versão {{ portal.versao }}</span>
+                </div>
+            </li>
+        {% else %}
+            <li class="vazio">Nenhum guia publicado ainda.</li>
+        {% endfor %}
+    </ul>
+{% endblock %}

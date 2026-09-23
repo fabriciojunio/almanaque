@@ -112,6 +112,10 @@ class AppFixtures extends Fixture
         ];
 
         foreach ($anuncios as $posicao => [$titulo, $categoria, $descricao, $telefone, $ehDestaque]) {
+            if (!isset($categorias[$categoria])) {
+                throw new \LogicException(sprintf('O anúncio "%s" aponta para a categoria "%s", que não existe nos dados de exemplo.', $titulo, $categoria));
+            }
+
             $anuncio = new Anuncio(
                 $portal,
                 $titulo,
@@ -153,8 +157,20 @@ class AppFixtures extends Fixture
         );
         $cobrancaDuplicada->marcarCorrigidoNa('2.4.0');
 
+        // Um defeito ainda sem correção, que é o caso que o suporte convive
+        // com contorno enquanto o desenvolvimento não chega.
+        $imagemGrande = new ProblemaConhecido(
+            'PC-003',
+            'Foto grande demais derruba o envio do anúncio',
+            'tento subir a foto da loja e a tela fica carregando e não termina',
+            'O redimensionamento roda na mesma requisição do envio e estoura o tempo limite com imagem acima de 8 MB.',
+            '2.4.0',
+        );
+        $imagemGrande->anotarContorno('Peça ao cliente para subir a imagem com no máximo 2000 pixels de largura.');
+
         $gerenciador->persist($indiceAtrasado);
         $gerenciador->persist($cobrancaDuplicada);
+        $gerenciador->persist($imagemGrande);
 
         // Chamado em aberto, no portal atrasado, que ainda pega o PC-001.
         $aberto = new Chamado(

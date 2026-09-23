@@ -58,7 +58,16 @@ class MotorComReservaTest extends TestCase
     #[Test]
     public function a_queda_do_indice_vira_alerta_no_log_com_o_erro_e_o_portal(): void
     {
-        $log = $this->logDeMentira();
+        $log = new class extends AbstractLogger {
+            /** @var list<array{0: string, 1: string, 2: array<string, mixed>}> */
+            public array $registros = [];
+
+            public function log($level, \Stringable|string $message, array $context = []): void
+            {
+                $this->registros[] = [(string) $level, (string) $message, $context];
+            }
+        };
+
         $motor = new MotorComReserva(
             $this->motorQueExplode('elasticsearch', 'connection refused'),
             $this->motorQueResponde('banco', []),
@@ -84,19 +93,6 @@ class MotorComReservaTest extends TestCase
         );
 
         $this->assertTrue($motor->estaDisponivel());
-    }
-
-    private function logDeMentira(): AbstractLogger
-    {
-        return new class extends AbstractLogger {
-            /** @var list<array{0: string, 1: string, 2: array<string, mixed>}> */
-            public array $registros = [];
-
-            public function log($level, \Stringable|string $message, array $context = []): void
-            {
-                $this->registros[] = [(string) $level, (string) $message, $context];
-            }
-        };
     }
 
     /** @param list<string> $titulos */

@@ -1,0 +1,41 @@
+{% extends 'base.html.twig' %}
+
+{% block titulo %}{{ portal.nome }}{% endblock %}
+{% block descricao %}{{ portal.nome }}: guia de empresas e serviços, com {{ total }} anúncios publicados.{% endblock %}
+
+{% block navegacao %}
+    <a href="{{ path('inicio') }}">Guias</a>
+    <a href="{{ path('guia_busca', {portal: portal.apelido}) }}">Buscar</a>
+{% endblock %}
+
+{% block conteudo %}
+    <div class="chamada">
+        <h1>{{ portal.nome }}</h1>
+        <p>{{ total }} {{ total == 1 ? 'anúncio publicado' : 'anúncios publicados' }} neste guia.</p>
+    </div>
+
+    {% include 'guia/_busca.html.twig' with {termo: ''} %}
+
+    <div class="duas-colunas espaco-acima">
+        {% include 'guia/_indice.html.twig' with {categoriaEscolhida: null} %}
+
+        <section>
+            <h2 class="etiqueta">Em destaque</h2>
+            <ul class="lista-anuncios">
+                {% for anuncio in destaques %}
+                    {% include 'guia/_anuncio.html.twig' with {item: {
+                        titulo: anuncio.titulo,
+                        apelido: anuncio.apelido,
+                        resumo: anuncio.descricao|slice(0, 180),
+                        categoria: anuncio.categoria.nome,
+                        cidade: anuncio.cidade,
+                        telefone: anuncio.telefone,
+                        destaque: true
+                    }} %}
+                {% else %}
+                    <li class="vazio">Nenhum anúncio em destaque neste guia.</li>
+                {% endfor %}
+            </ul>
+        </section>
+    </div>
+{% endblock %}

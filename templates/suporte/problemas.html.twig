@@ -1,0 +1,62 @@
+{% extends 'base.html.twig' %}
+
+{% block titulo %}Problemas conhecidos{% endblock %}
+
+{% block navegacao %}
+    <a href="{{ path('inicio') }}">Guias</a>
+    <a href="{{ path('suporte_fila') }}">Fila</a>
+    <a href="{{ path('suporte_problemas') }}">Problemas conhecidos</a>
+    <a href="{{ path('suporte_publicacoes') }}">Publicações</a>
+{% endblock %}
+
+{% block conteudo %}
+    <div class="chamada">
+        <h1>Problemas conhecidos</h1>
+        <p>
+            O sintoma fica escrito como o cliente descreve, não como o time
+            descreve. É assim que a busca encontra quando o mesmo caso volta.
+        </p>
+    </div>
+
+    <form class="busca" method="get" role="search">
+        <input type="search" name="q" value="{{ termo }}" placeholder="não aparece na busca, cobrado duas vezes, PC-001…" aria-label="Procurar problema">
+        <button class="botao" type="submit">Procurar</button>
+    </form>
+
+    <table class="tabela espaco-acima">
+        <thead>
+        <tr>
+            <th>Código</th>
+            <th>Problema</th>
+            <th>Versões</th>
+            <th>Chamados</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for problema in problemas %}
+            <tr>
+                <td class="dado">{{ problema.codigo }}</td>
+                <td>
+                    <strong>{{ problema.titulo }}</strong>
+                    <br><span class="etiqueta">sintoma: {{ problema.sintoma }}</span>
+                    <p class="nota">{{ problema.causa }}</p>
+                    {% if problema.contorno %}
+                        <p class="nota"><strong>Contorno:</strong> {{ problema.contorno }}</p>
+                    {% endif %}
+                </td>
+                <td class="dado sem-quebra">
+                    {{ problema.versaoAfetadaDe ?? '—' }} →
+                    {% if problema.estaCorrigido %}
+                        <span class="tarja tarja-ok">corrigido na {{ problema.corrigidoNaVersao }}</span>
+                    {% else %}
+                        <span class="tarja tarja-alerta">em aberto</span>
+                    {% endif %}
+                </td>
+                <td class="dado direita">{{ problema.quantidadeDeChamados }}</td>
+            </tr>
+        {% else %}
+            <tr><td colspan="4" class="vazio">Nada encontrado.</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

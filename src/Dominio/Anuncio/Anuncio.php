@@ -268,7 +268,7 @@ class Anuncio
         $this->tocar();
     }
 
-    /** @param list<string> $imagens */
+    /** @param array<int|string, string> $imagens */
     public function definirImagens(array $imagens): void
     {
         $this->imagens = array_values($imagens);

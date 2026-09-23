@@ -36,6 +36,10 @@ services:
             $url: '%app.elasticsearch.url%'
             $indice: '%app.elasticsearch.indice%'
 
+    # Quem cobra de verdade. Trocar o adquirente é trocar esta linha, e o
+    # domínio não fica sabendo.
+    App\Dominio\Assinatura\Gateway: '@App\Infraestrutura\Pagamento\GatewayDeDemonstracao'
+
     # Precisa vir antes do resolvedor do Doctrine, que tentaria achar o portal
     # pelo identificador e devolveria 404 antes de a rota chegar ao controller.
     App\Infraestrutura\Http\ResolvedorDePortal:
