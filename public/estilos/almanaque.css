@@ -627,3 +627,44 @@ img {
   border-top: 1px solid var(--filete);
   margin: 14px 0;
 }
+
+/* ------------------------------------------------------------------ celular
+
+   No console de suporte a barra de topo tem cinco itens, e num aparelho de
+   412 pontos de largura eles saíam da tela: o link ficava lá, alcançável por
+   leitor de tela e inalcançável pelo dedo. Aqui a barra quebra em duas
+   linhas.
+*/
+
+@media (max-width: 640px) {
+  .topo-linha {
+    flex-wrap: wrap;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    gap: 8px 14px;
+  }
+
+  .topo nav {
+    flex-wrap: wrap;
+    gap: 6px 14px;
+    font-size: 13px;
+    width: 100%;
+  }
+
+  .chamada h1 {
+    font-size: 27px;
+  }
+
+  .tabela {
+    display: block;
+    overflow-x: auto;
+  }
+
+  .anuncio {
+    grid-template-columns: 1fr;
+  }
+
+  .anuncio .contato {
+    text-align: left;
+  }
+}

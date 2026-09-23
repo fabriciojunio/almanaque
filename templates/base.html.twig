@@ -6,9 +6,9 @@
     <title>{% block titulo %}Almanaque{% endblock %}</title>
     <meta name="description" content="{% block descricao %}Almanaque: guias de empresas, classificados e portais de bairro.{% endblock %}">
     <link rel="icon" href="{{ asset('favicon.svg') }}" type="image/svg+xml">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800&family=Courier+Prime:wght@400;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap">
+    <link rel="preload" href="{{ asset('fontes/archivo-800-latin.woff2') }}" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="{{ asset('fontes/source-serif-4-400-latin.woff2') }}" as="font" type="font/woff2" crossorigin>
+    <link rel="stylesheet" href="{{ asset('estilos/fontes.css') }}">
     <link rel="stylesheet" href="{{ asset('estilos/almanaque.css') }}">
 </head>
 <body>
