@@ -3,7 +3,7 @@
 [![CI](https://github.com/fabriciojunio/almanaque/actions/workflows/ci.yml/badge.svg)](https://github.com/fabriciojunio/almanaque/actions/workflows/ci.yml)
 [![PHP](https://img.shields.io/badge/PHP-8.3-777BB4?logo=php&logoColor=white)](https://php.net)
 [![Symfony](https://img.shields.io/badge/Symfony-7.4-000000?logo=symfony&logoColor=white)](https://symfony.com)
-[![Elasticsearch](https://img.shields.io/badge/Elasticsearch-8-005571?logo=elasticsearch&logoColor=white)](https://elastic.co)
+[![Elasticsearch](https://img.shields.io/badge/Elasticsearch-9-005571?logo=elasticsearch&logoColor=white)](https://elastic.co)
 [![Licença](https://img.shields.io/badge/licença-MIT-black)](LICENSE)
 
 **No ar: <https://almanaque-ecru.vercel.app>** — com dados de demonstração e as
@@ -44,7 +44,7 @@ Três regras que o sistema não deixa furar, e que têm teste dos dois lados:
 
 ## Stack
 
-PHP 8.3 · Symfony 7.4 · Doctrine ORM · MySQL 8 · Elasticsearch 8 · Twig ·
+PHP 8.3 · Symfony 7.4 · Doctrine ORM · MySQL 8 · Elasticsearch 9 · Twig ·
 Redis · Docker · Kubernetes · S3 (imagens) · PHPUnit · Playwright · PHPStan
 nível 8 · PHP-CS-Fixer
 

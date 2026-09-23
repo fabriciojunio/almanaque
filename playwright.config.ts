@@ -43,7 +43,7 @@ export default defineConfig({
     // do PHP não põe as variáveis de ambiente em $_ENV, o Symfony não enxerga
     // o APP_ENV, sobe em dev e tenta falar com o MySQL que não existe aqui.
     command: 'php -d variables_order=EGPCS -S 127.0.0.1:8099 -t public',
-    url: 'http://127.0.0.1:8099/api/saude',
+    url: 'http://127.0.0.1:8099/rest/saude',
     reuseExistingServer: !process.env.CI,
     timeout: 60_000,
     env: { APP_ENV: 'test' },

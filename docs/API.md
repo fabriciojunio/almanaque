@@ -1,6 +1,6 @@
 # API
 
-Base `/api`. Autenticação por token no cabeçalho `Authorization: Bearer`.
+Base `/rest` (o porquê está na [ADR 0007](adr/0007-prefixo-rest.md)). Autenticação por token no cabeçalho `Authorization: Bearer`.
 
 Toda resposta leva `X-Request-Id`, que é o que se procura no log e o que o
 chamado guarda.

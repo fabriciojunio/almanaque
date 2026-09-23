@@ -121,7 +121,10 @@ jobs:
       - name: Rodar as migrações no MySQL
         env:
           DATABASE_URL: mysql://root:integracao@127.0.0.1:3306/almanaque_teste?serverVersion=8.0&charset=utf8mb4
+        # O ambiente de teste acrescenta o sufixo _test ao nome do banco,
+        # então o banco que o serviço cria não é o que a aplicação procura.
         run: |
+          php bin/console doctrine:database:create --env=test --if-not-exists
           php bin/console doctrine:migrations:migrate --env=test -n
           php bin/console doctrine:fixtures:load --env=test -n
 
@@ -137,7 +140,7 @@ jobs:
 
     services:
       indice:
-        image: elasticsearch:8.15.3
+        image: elasticsearch:9.5.3
         env:
           discovery.type: single-node
           xpack.security.enabled: 'false'

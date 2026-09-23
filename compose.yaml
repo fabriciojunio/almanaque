@@ -73,7 +73,7 @@ services:
     restart: unless-stopped
 
   indice:
-    image: elasticsearch:8.15.3
+    image: elasticsearch:9.5.3
     container_name: almanaque-indice
     environment:
       discovery.type: single-node
