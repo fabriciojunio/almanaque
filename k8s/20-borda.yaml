@@ -1,0 +1,162 @@
+# A borda HTTP: Nginx com os arquivos estáticos e o repasse para o PHP-FPM.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: almanaque-borda-config
+  namespace: almanaque
+data:
+  default.conf: |
+    server {
+        listen 8080;
+        server_name _;
+        root /app/public;
+        server_tokens off;
+        client_max_body_size 12M;
+
+        add_header X-Content-Type-Options "nosniff" always;
+        add_header X-Frame-Options "DENY" always;
+
+        location /fontes/ {
+            expires 1y;
+            add_header Cache-Control "public, immutable";
+            try_files $uri =404;
+        }
+
+        location / {
+            try_files $uri /index.php$is_args$args;
+        }
+
+        location ~ ^/index\.php(/|$) {
+            fastcgi_pass almanaque-api:9000;
+            fastcgi_split_path_info ^(.+\.php)(/.*)$;
+            include fastcgi_params;
+            fastcgi_param SCRIPT_FILENAME /app/public/index.php;
+            fastcgi_param DOCUMENT_ROOT /app/public;
+            internal;
+        }
+
+        location ~ \.php$ {
+            return 404;
+        }
+    }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: almanaque-borda
+  namespace: almanaque
+  labels:
+    app: almanaque-borda
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: almanaque-borda
+  template:
+    metadata:
+      labels:
+        app: almanaque-borda
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 101
+      containers:
+        - name: borda
+          image: nginx:1.27-alpine
+          ports:
+            - name: http
+              containerPort: 8080
+          volumeMounts:
+            - name: config
+              mountPath: /etc/nginx/conf.d
+            - name: estatico
+              mountPath: /app/public
+              readOnly: true
+          resources:
+            requests:
+              cpu: 25m
+              memory: 32Mi
+            limits:
+              cpu: 200m
+              memory: 128Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ['ALL']
+          livenessProbe:
+            httpGet:
+              path: /api/saude
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /api/saude
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+      volumes:
+        - name: config
+          configMap:
+            name: almanaque-borda-config
+        # Os arquivos estáticos vêm da mesma imagem da aplicação, montada
+        # somente leitura. Dois artefatos diferentes para o mesmo commit é
+        # como a fonte nova sobe e o CSS antigo fica.
+        - name: estatico
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: almanaque-borda
+  namespace: almanaque
+spec:
+  selector:
+    app: almanaque-borda
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: almanaque
+  namespace: almanaque
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt
+    nginx.ingress.kubernetes.io/proxy-body-size: 12m
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts: [almanaque.com.br]
+      secretName: almanaque-tls
+  rules:
+    - host: almanaque.com.br
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: almanaque-borda
+                port:
+                  number: 80
+---
+# Ninguém fala com o banco ou com o índice além da aplicação. Sem isto, um
+# container comprometido na borda alcança o MySQL direto.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: almanaque-so-a-api-fala-com-os-dados
+  namespace: almanaque
+spec:
+  podSelector:
+    matchLabels:
+      camada: dados
+  policyTypes: [Ingress]
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app: almanaque-api

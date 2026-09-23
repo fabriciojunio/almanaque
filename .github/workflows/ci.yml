@@ -1,0 +1,254 @@
+name: CI
+
+# Nada entra na principal sem passar por aqui. A bateria roda três vezes em
+# condições diferentes de propósito: em SQLite (rápida), em MySQL 8 (que é o
+# banco de produção) e com Elasticsearch no ar (que é o motor de busca de
+# verdade, e o único que não dá para provar na máquina de quem programa).
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  PHP_VERSAO: '8.3'
+
+jobs:
+  qualidade:
+    name: Formatação e análise estática
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ env.PHP_VERSAO }}
+          extensions: intl, pdo_sqlite, pdo_mysql, zip, gd
+          coverage: none
+          tools: composer:v2
+
+      - name: Instalar dependências
+        run: composer install --no-interaction --no-progress --prefer-dist
+
+      - name: Conferir a formatação
+        run: php vendor/bin/php-cs-fixer fix --dry-run --diff
+        env:
+          PHP_CS_FIXER_IGNORE_ENV: 1
+
+      - name: Preparar o container para a análise
+        run: php bin/console cache:warmup --env=test
+
+      - name: Análise estática (nível 8)
+        run: php vendor/bin/phpstan analyse --no-progress --memory-limit=1G
+
+      - name: Conferir dependência com falha conhecida
+        run: composer audit --no-interaction
+
+  testes:
+    name: Bateria (SQLite)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ env.PHP_VERSAO }}
+          extensions: intl, pdo_sqlite, zip, gd
+          coverage: xdebug
+          tools: composer:v2
+
+      - name: Instalar dependências
+        run: composer install --no-interaction --no-progress --prefer-dist
+
+      - name: Preparar o banco
+        run: |
+          php bin/console doctrine:schema:create --env=test
+          php bin/console doctrine:fixtures:load --env=test -n
+
+      - name: Testar com cobertura
+        run: php vendor/bin/phpunit --coverage-text --coverage-clover=cobertura.xml
+
+      - name: Guardar o relatório de cobertura
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cobertura
+          path: cobertura.xml
+          retention-days: 7
+
+  testes-mysql:
+    name: Bateria (MySQL 8)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    # Produção é MySQL. Diferença de dialeto (enum, índice, ordenação,
+    # tamanho de chave) só aparece no banco de verdade.
+    services:
+      banco:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: integracao
+          MYSQL_DATABASE: almanaque_teste
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd "mysqladmin ping -h localhost -u root -pintegracao"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ env.PHP_VERSAO }}
+          extensions: intl, pdo_mysql, zip, gd
+          coverage: none
+          tools: composer:v2
+
+      - name: Instalar dependências
+        run: composer install --no-interaction --no-progress --prefer-dist
+
+      - name: Rodar as migrações no MySQL
+        env:
+          DATABASE_URL: mysql://root:integracao@127.0.0.1:3306/almanaque_teste?serverVersion=8.0&charset=utf8mb4
+        run: |
+          php bin/console doctrine:migrations:migrate --env=test -n
+          php bin/console doctrine:fixtures:load --env=test -n
+
+      - name: Testar contra o MySQL
+        env:
+          DATABASE_URL: mysql://root:integracao@127.0.0.1:3306/almanaque_teste?serverVersion=8.0&charset=utf8mb4
+        run: php vendor/bin/phpunit
+
+  busca:
+    name: Busca com Elasticsearch
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    services:
+      indice:
+        image: elasticsearch:8.15.3
+        env:
+          discovery.type: single-node
+          xpack.security.enabled: 'false'
+          ES_JAVA_OPTS: -Xms512m -Xmx512m
+        ports:
+          - 9200:9200
+        options: >-
+          --health-cmd "curl -sf http://localhost:9200/_cluster/health || exit 1"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 20
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ env.PHP_VERSAO }}
+          extensions: intl, pdo_sqlite, zip, gd
+          coverage: none
+          tools: composer:v2
+
+      - name: Instalar dependências
+        run: composer install --no-interaction --no-progress --prefer-dist
+
+      - name: Preparar o banco
+        run: |
+          php bin/console doctrine:schema:create --env=test
+          php bin/console doctrine:fixtures:load --env=test -n
+
+      # Sem a variável, os testes de busca se pulam sozinhos e o trabalho
+      # passaria em verde sem ter testado nada. O passo seguinte confere que
+      # eles rodaram mesmo.
+      - name: Testar a busca contra o índice de verdade
+        env:
+          ELASTICSEARCH_URL: http://127.0.0.1:9200
+        run: |
+          php vendor/bin/phpunit tests/Integracao/BuscaElasticsearchTest.php --log-junit=busca.xml
+          if grep -q 'skipped="[1-9]' busca.xml; then
+            echo "::error::Os testes de busca se pularam. O Elasticsearch não subiu."
+            exit 1
+          fi
+
+  ponta-a-ponta:
+    name: Ponta a ponta (Playwright)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: [testes]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ env.PHP_VERSAO }}
+          extensions: intl, pdo_sqlite, zip, gd
+          coverage: none
+          tools: composer:v2
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+
+      - name: Instalar dependências
+        run: |
+          composer install --no-interaction --no-progress --prefer-dist
+          npm ci
+
+      - name: Preparar o banco
+        run: php bin/console doctrine:schema:create --env=test
+
+      - name: Instalar o navegador
+        run: npx playwright install --with-deps chromium
+
+      - name: Rodar os testes
+        run: npx playwright test
+
+      - name: Guardar o relatório quando falhar
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: relatorio-playwright
+          path: playwright-report/
+          retention-days: 7
+
+  imagem:
+    name: Imagem de produção
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: [qualidade, testes]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Construir
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          target: producao
+          push: false
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  manifestos:
+    name: Manifestos do Kubernetes
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - uses: actions/checkout@v4
+      - run: pip install pyyaml
+      - run: python k8s/conferir-manifestos.py

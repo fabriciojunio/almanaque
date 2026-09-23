@@ -1,0 +1,161 @@
+# A aplicação (PHP-FPM) e as rotinas que rodam por horário.
+#
+# Duas réplicas porque a API não guarda estado: a sessão do console é cookie
+# assinado, a autenticação da API é token, e a imagem do anúncio vai para o
+# S3. O que não pode ter duas cópias é a rotina de cobrança, e ela é CronJob
+# com concurrencyPolicy: Forbid justamente por isso.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: almanaque-api
+  namespace: almanaque
+  labels:
+    app: almanaque-api
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: almanaque-api
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+  template:
+    metadata:
+      labels:
+        app: almanaque-api
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 82
+        fsGroup: 82
+      containers:
+        - name: api
+          image: almanaque:1.0.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: fpm
+              containerPort: 9000
+          envFrom:
+            - configMapRef:
+                name: almanaque-config
+            - secretRef:
+                name: almanaque-secret
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ['ALL']
+          livenessProbe:
+            tcpSocket:
+              port: fpm
+            initialDelaySeconds: 15
+            periodSeconds: 30
+          readinessProbe:
+            tcpSocket:
+              port: fpm
+            initialDelaySeconds: 5
+            periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: almanaque-api
+  namespace: almanaque
+spec:
+  selector:
+    app: almanaque-api
+  ports:
+    - name: fpm
+      port: 9000
+      targetPort: fpm
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: almanaque-cobranca
+  namespace: almanaque
+spec:
+  # Três da manhã: fora do horário comercial brasileiro, e antes de qualquer
+  # cliente olhar o próprio faturamento.
+  schedule: '0 3 * * *'
+  timeZone: America/Sao_Paulo
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 2
+      template:
+        spec:
+          restartPolicy: Never
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 82
+          containers:
+            - name: cobranca
+              image: almanaque:1.0.0
+              command: ['php', 'bin/console', 'almanaque:cobrar']
+              envFrom:
+                - configMapRef:
+                    name: almanaque-config
+                - secretRef:
+                    name: almanaque-secret
+              resources:
+                requests:
+                  cpu: 50m
+                  memory: 192Mi
+                limits:
+                  cpu: 500m
+                  memory: 384Mi
+              securityContext:
+                allowPrivilegeEscalation: false
+                capabilities:
+                  drop: ['ALL']
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: almanaque-expiracao
+  namespace: almanaque
+spec:
+  # Depois da cobrança, nunca antes: quem pagou às três da manhã teve o prazo
+  # empurrado e não pode sair do ar às três e meia.
+  schedule: '30 3 * * *'
+  timeZone: America/Sao_Paulo
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: Never
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 82
+          containers:
+            - name: expiracao
+              image: almanaque:1.0.0
+              command: ['php', 'bin/console', 'almanaque:expirar']
+              envFrom:
+                - configMapRef:
+                    name: almanaque-config
+                - secretRef:
+                    name: almanaque-secret
+              resources:
+                requests:
+                  cpu: 50m
+                  memory: 192Mi
+                limits:
+                  cpu: 300m
+                  memory: 384Mi
+              securityContext:
+                allowPrivilegeEscalation: false
+                capabilities:
+                  drop: ['ALL']

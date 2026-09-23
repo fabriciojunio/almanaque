@@ -1,0 +1,36 @@
+# Espaço, configuração e o gabarito do segredo.
+#
+# O segredo aqui vai vazio. Quem publica preenche pelo gerenciador de segredo
+# do cluster, e o conferidor do CI reprova se alguém gravar um valor neste
+# arquivo.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: almanaque
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: almanaque-config
+  namespace: almanaque
+data:
+  APP_ENV: prod
+  APP_DEBUG: '0'
+  APP_VERSAO: 1.0.0
+  ELASTICSEARCH_URL: http://almanaque-indice:9200
+  ELASTICSEARCH_INDICE: almanaque-anuncios
+  ARMAZENAMENTO: s3
+  AWS_REGIAO: sa-east-1
+  AWS_BUCKET: almanaque-imagens
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: almanaque-secret
+  namespace: almanaque
+type: Opaque
+stringData:
+  APP_SECRET: ''
+  DATABASE_URL: ''
+  AWS_CHAVE: ''
+  AWS_SEGREDO: ''

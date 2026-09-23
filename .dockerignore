@@ -1,0 +1,12 @@
+.git
+.github
+node_modules
+vendor
+var
+docs
+k8s
+e2e
+test-results
+playwright-report
+.env.local
+.env.*.local
