@@ -53,6 +53,10 @@ services:
         tags:
             - { name: controller.argument_value_resolver, priority: 150 }
 
+    App\Infraestrutura\Http\VersaoPeloConteudo:
+        arguments:
+            $raizPublica: '%kernel.project_dir%/public'
+
     App\Dominio\Busca\Indexador:
         factory: ['App\Infraestrutura\Busca\FabricaDeBusca', 'indexador']
         arguments:

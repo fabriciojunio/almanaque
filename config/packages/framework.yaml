@@ -6,6 +6,9 @@ framework:
     # do guia não recebe cookie nenhum: quem usa sessão aqui é o console.
     session: true
 
+    assets:
+        version_strategy: App\Infraestrutura\Http\VersaoPeloConteudo
+
 when@test:
     framework:
         test: true
