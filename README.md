@@ -93,7 +93,7 @@ contexto de cada uma em [docs/adr/](docs/adr/).
 
 ```bash
 make testar     # 151 testes: unidade, integração e HTTP
-make e2e        # 32 testes de navegador, no desktop e no celular
+make e2e        # 46 testes de navegador, no desktop e no celular
 make revisar    # PHP-CS-Fixer e PHPStan nível 8
 ```
 

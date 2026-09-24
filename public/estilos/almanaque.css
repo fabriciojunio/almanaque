@@ -38,13 +38,38 @@ html {
   -webkit-text-size-adjust: 100%;
 }
 
+/* Página curta deixava o rodapé no meio da tela, com o papel continuando
+   abaixo dele. A coluna ocupa a janela inteira e o miolo cresce para empurrar
+   o rodapé até o fim. O dvh é por causa da barra do navegador no celular, que
+   entra e sai e faz o vh mentir. */
 body {
   margin: 0;
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
   background: var(--papel);
   color: var(--tinta);
   font-family: var(--fonte-corpo);
   font-size: 16px;
   line-height: 1.55;
+}
+
+/* A largura explícita não é redundante: o miolo é uma faixa com margin auto, e
+   margem automática no eixo transversal desliga o esticamento do flex e deixa
+   a faixa do tamanho do conteúdo. Numa tela de 412 pontos a tabela do console
+   empurrava a página para 773 e o guia ganhava rolagem lateral. */
+body > * {
+  width: 100%;
+  min-width: 0;
+}
+
+body > main {
+  flex: 1 0 auto;
+}
+
+body > .rodape {
+  flex-shrink: 0;
 }
 
 h1,

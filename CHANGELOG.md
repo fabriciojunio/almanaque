@@ -17,7 +17,7 @@ Formato baseado no [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
 - API pública do guia e API autenticada de chamados, com token de hash no
   banco.
 - Três comandos de operação: cobrar, expirar e reindexar.
-- 151 testes automatizados e 32 de navegador, no desktop e no celular.
+- 151 testes automatizados e 46 de navegador, no desktop e no celular.
 - CI que roda a bateria em SQLite, em MySQL 8 e com Elasticsearch no ar, e que
   reprova se os testes de busca se pularem.
 - Imagem de produção sem Composer, sem Xdebug e sem root; manifestos do
@@ -32,6 +32,8 @@ Formato baseado no [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
 - A política de conteúdo bloqueava a folha do Google Fonts, e o site inteiro
   era desenhado com as fontes de reserva sem ninguém perceber.
 - A barra de topo do console não cabia num aparelho de 412 pontos.
+- Em página curta o rodapé parava no meio da tela, com papel em branco
+  embaixo dele até o fim da janela.
 - A busca de problemas conhecidos só achava frase exata.
 - A contagem de anúncios da categoria raiz ignorava as filhas.
 - O LIKE das buscas era sensível a maiúscula no PostgreSQL: procurar por
