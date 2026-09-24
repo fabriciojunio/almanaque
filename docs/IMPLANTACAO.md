@@ -26,6 +26,9 @@ para lá, menos fonte, estilo, favicon e `robots.txt`, que são servidos como
 arquivo. O `public/index.php` fica no `.vercelignore`: sem isso a plataforma
 o trata como arquivo estático e entrega o código-fonte como download na raiz.
 
+A publicação é automática: o que entra na `main` vai para o ar, e o resultado
+aparece como implantação no próprio commit do GitHub. Não há botão de subir.
+
 Variáveis que o ambiente precisa:
 
 ```
