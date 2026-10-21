@@ -100,6 +100,42 @@ class SegurancaApiTest extends CasoDeTesteHttp
     }
 
     #[Test]
+    public function login_recusa_campos_de_tipo_invalido(): void
+    {
+        $this->chamar('POST', '/rest/tokens', corpo: [
+            'email' => ['suporte@almanaque.com.br'],
+            'senha' => ['demonstracao2026'],
+        ]);
+
+        self::assertResponseStatusCodeSame(400);
+    }
+
+    #[Test]
+    public function senha_acima_do_limite_nao_revela_se_a_conta_existe(): void
+    {
+        foreach (['ninguem@exemplo.com.br', 'suporte@almanaque.com.br'] as $email) {
+            $this->chamar('POST', '/rest/tokens', corpo: [
+                'email' => $email,
+                'senha' => str_repeat('a', 4097),
+            ]);
+
+            self::assertResponseStatusCodeSame(400);
+        }
+    }
+
+    #[Test]
+    public function login_recusa_descricao_estruturada(): void
+    {
+        $this->chamar('POST', '/rest/tokens', corpo: [
+            'email' => 'suporte@almanaque.com.br',
+            'senha' => 'demonstracao2026',
+            'descricao' => ['nao-e-texto'],
+        ]);
+
+        self::assertResponseStatusCodeSame(400);
+    }
+
+    #[Test]
     public function login_correto_devolve_token_que_funciona(): void
     {
         $this->chamar('POST', '/rest/tokens', corpo: [

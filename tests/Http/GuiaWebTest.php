@@ -115,6 +115,53 @@ class GuiaWebTest extends CasoDeTesteHttp
     }
 
     #[Test]
+    public function formulario_de_entrada_aceita_conta_ativa(): void
+    {
+        $pagina = $this->navegador->request('GET', '/entrar');
+        $formulario = $pagina->selectButton('Entrar')->form([
+            '_username' => 'suporte@almanaque.com.br',
+            '_password' => 'demonstracao2026',
+        ]);
+
+        $this->navegador->submit($formulario);
+        $this->navegador->request('GET', '/suporte');
+
+        self::assertResponseIsSuccessful();
+    }
+
+    #[Test]
+    public function formulario_de_entrada_recusa_conta_desativada(): void
+    {
+        $usuario = $this->usuario('suporte@almanaque.com.br');
+        $usuario->desativar();
+        $this->gerenciador()->flush();
+
+        $pagina = $this->navegador->request('GET', '/entrar');
+        $formulario = $pagina->selectButton('Entrar')->form([
+            '_username' => 'suporte@almanaque.com.br',
+            '_password' => 'demonstracao2026',
+        ]);
+
+        $this->navegador->submit($formulario);
+        $this->navegador->request('GET', '/suporte');
+
+        self::assertResponseRedirects('/entrar');
+    }
+
+    #[Test]
+    public function sessao_web_aberta_perde_acesso_ao_desativar_conta(): void
+    {
+        $usuario = $this->usuario('suporte@almanaque.com.br');
+        $this->entrarComo($usuario);
+        $usuario->desativar();
+        $this->gerenciador()->flush();
+
+        $this->navegador->request('GET', '/suporte');
+
+        self::assertResponseStatusCodeSame(403);
+    }
+
+    #[Test]
     public function quem_nao_e_do_suporte_nao_entra_no_console(): void
     {
         $this->entrarComo($this->usuario('dono@guiadebauru.com.br'));
