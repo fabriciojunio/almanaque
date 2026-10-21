@@ -47,14 +47,18 @@ em cada teste multiplica o tempo por dez e não prova nada.
 conta desativada devolvem o mesmo texto e o mesmo código. Diferenciar entrega
 de graça a lista de quem tem conta.
 
-**E o mesmo tempo.** Quando o e-mail não existe, a senha é conferida assim
-mesmo, contra um hash descartável. Sem isso, a resposta para e-mail
+**E custo semelhante.** Quando o e-mail não existe, a senha ainda passa pelo
+mesmo algoritmo e custo configurados para as contas reais. Sem isso, a resposta para e-mail
 inexistente volta em um milissegundo e a de senha errada em cem, e o tempo
 responde o que o texto não respondeu.
 
 **Limite de tentativa.** Cinco por minuto e por endereço na API, cinco em
 quinze minutos no formulário do console. Tem teste conferindo que a sexta é
 barrada, inclusive quando a senha está certa.
+
+O formulário confere se a conta continua ativa depois de verificar a senha.
+As páginas do suporte conferem esse estado em cada acesso, inclusive para
+sessões abertas antes da desativação.
 
 ## Política de conteúdo
 

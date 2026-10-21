@@ -4,14 +4,17 @@ declare(strict_types=1);
 
 namespace App\Interface\Api;
 
+use App\Dominio\Identidade\Papel;
 use App\Dominio\Identidade\Repositorio\TokenAcessoRepositorio;
 use App\Dominio\Identidade\Repositorio\UsuarioRepositorio;
 use App\Dominio\Identidade\TokenAcesso;
+use App\Dominio\Identidade\Usuario;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use Symfony\Component\PasswordHasher\PasswordHasherInterface;
 use Symfony\Component\RateLimiter\RateLimiterFactoryInterface;
 use Symfony\Component\Routing\Attribute\Route;
 
@@ -25,17 +28,13 @@ use Symfony\Component\Routing\Attribute\Route;
  * para e-mail que não existe, senha errada e conta desativada. Diferenciar é
  * entregar de graça a lista de quem tem conta.
  *
- * A senha é conferida mesmo quando o e-mail não existe, contra um hash
- * descartável. Sem isso, a resposta para e-mail inexistente volta em um
- * milissegundo e a resposta para senha errada em cem, e o tempo vira a
- * resposta que o texto não deu.
+ * O mesmo custo de hash é pago quando o e-mail não existe. Sem isso, a
+ * diferença de tempo pode revelar o que a resposta de erro não informa.
  *
  * Cinco tentativas por minuto e por endereço, contadas pelo limitador.
  */
 final class TokenController extends AbstractController
 {
-    private const SENHA_DESCARTAVEL = '$2y$10$usuarioQueNaoExisteNaBaseeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee';
-
     public function __construct(
         private readonly UsuarioRepositorio $usuarios,
         private readonly TokenAcessoRepositorio $tokens,
@@ -56,14 +55,22 @@ final class TokenController extends AbstractController
 
         $corpo = json_decode($requisicao->getContent(), true);
 
-        if (!is_array($corpo) || !isset($corpo['email'], $corpo['senha'])) {
+        if (!is_array($corpo) || !isset($corpo['email'], $corpo['senha'])
+            || !is_string($corpo['email']) || !is_string($corpo['senha'])
+            || (isset($corpo['descricao']) && !is_string($corpo['descricao']))) {
             return $this->json(['erro' => 'Informe e-mail e senha.'], 400);
+        }
+
+        if (strlen($corpo['senha']) > PasswordHasherInterface::MAX_PASSWORD_LENGTH) {
+            return $this->json(['erro' => 'Senha acima do tamanho permitido.'], 400);
         }
 
         $usuario = $this->usuarios->porEmail((string) $corpo['email']);
 
         if (null === $usuario) {
-            password_verify((string) $corpo['senha'], self::SENHA_DESCARTAVEL);
+            // Usa o algoritmo e o custo configurados também para conta ausente.
+            $ficticio = new Usuario('ausente@almanaque.invalid', 'Conta inexistente', Papel::SUPORTE);
+            $this->cifrador->hashPassword($ficticio, $corpo['senha']);
 
             return $this->recusar((string) $corpo['email'], 'e-mail não cadastrado');
         }

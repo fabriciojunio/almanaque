@@ -28,6 +28,7 @@ security:
         principal:
             lazy: true
             provider: usuarios
+            user_checker: App\Infraestrutura\Seguranca\VerificadorDeUsuario
             form_login:
                 login_path: entrar
                 check_path: entrar
