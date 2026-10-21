@@ -6,7 +6,7 @@ name: CI
 # verdade, e o único que não dá para provar na máquina de quem programa).
 on:
   push:
-    branches: [main]
+    branches: ["produção", "homologação"]
   pull_request:
 
 concurrency:
