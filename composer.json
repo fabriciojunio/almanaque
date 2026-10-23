@@ -1,4 +1,6 @@
 {
+    "name": "fabriciojunio/almanaque",
+    "description": "Plataforma multi-inquilino de guias empresariais e classificados",
     "type": "project",
     "license": "proprietary",
     "minimum-stability": "stable",
